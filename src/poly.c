@@ -12,15 +12,15 @@
 #define C PolyFromCoeff
 
 
-Mono *MergeTwoMonoArrays(int sizeP, int sizeQ, const Mono *p, const Mono *q) {
+Mono *MergeTwoMonoArrays(size_t sizeP, size_t sizeQ, const Mono *p, const Mono *q) {
     // tworzymy głęboką kopię skopiowanej tablicy
     Mono *mergedArray = malloc(sizeof(Mono) * (sizeP + sizeQ));
     CHECK_PTR(mergedArray);
 
-    for (int i = 0; i < sizeP; i++) {
+    for (size_t i = 0; i < sizeP; i++) {
         mergedArray[i] = MonoClone(&p[i]);
     }
-    for (int j = sizeP; j < sizeQ + sizeP; j++) {
+    for (size_t j = sizeP; j < sizeQ + sizeP; j++) {
         mergedArray[j] = MonoClone(&q[j - sizeP]);
     }
     return mergedArray;
@@ -61,7 +61,7 @@ void PolyDestroy(Poly *p) {
         return;
     }
     else{
-        for(int j = 0; j < p -> size; ++j){
+        for(size_t j = 0; j < p -> size; ++j){
             PolyDestroy(&p -> arr[j].p);
         }
     }
@@ -84,22 +84,21 @@ bool CanAddTwoMonos(const Mono a, const Mono b) {
 }
 
 
-void shiftArray(size_t *size, Mono *array, int k){
-    for(int i = k; i < *size - 1; i++){
+void shiftArray(size_t *size, Mono *array, size_t k){
+    for(size_t i = k; i < *size - 1; i++){
         array[i] = array[i+1];
     }
     (*size)--;
 }
 
 Mono *simplify(Mono *arr, const size_t count, size_t *realCount) {
-    // dostajemy tablice(płytko skopiowaną)
 
 
 
     *realCount = count;
     // finalnie nic nie zmienamy w arr
     // upraszczanie przez dodawanie
-    for(int j = 0; j < *realCount - 1; ++j){
+    for(size_t j = 0; j < *realCount - 1; ++j){
         if(CanAddTwoMonos(arr[j], arr[j+1])){
             Mono toBeDestroyed = arr[j];
             arr[j].p = PolyAdd(&arr[j].p, &arr[j + 1].p);
@@ -109,7 +108,7 @@ Mono *simplify(Mono *arr, const size_t count, size_t *realCount) {
             j--;
         }
     }
-    int k = 0;
+    size_t k = 0;
 
     while(k < *realCount){
         if(PolyIsZero(&arr[k].p)){
@@ -149,7 +148,7 @@ Poly PolyClone(const Poly *p) {
         return PolyFromCoeff(p -> coeff);
     }
     Mono *new_array = malloc(sizeof(Mono) * p->size);
-    for(int i = 0; i < p -> size; ++i) {
+    for(size_t i = 0; i < p -> size; ++i) {
         Poly new_poly = PolyClone(&p->arr[i].p);
         new_array[i] = MonoFromPoly(&new_poly, p->arr[i].exp);
     }
@@ -185,7 +184,7 @@ bool PolyIsEq(const Poly *p, const Poly *q) {
         return false;
     }
     if (!WholePolyIsCoeff(p) && !WholePolyIsCoeff(q) && p->size == q->size) {
-        for (int i = 0; i < p->size; i++) {
+        for (size_t i = 0; i < p->size; i++) {
             if (!MonoIsEq(&p->arr[i], &q->arr[i])) {
                 return false;
             }
@@ -221,7 +220,7 @@ poly_exp_t PolyDeg(const Poly *p) {
         result = p->arr[0].exp;
         return result;
     } else {
-        for (int i = 0; i < p->size; i++) {
+        for (size_t i = 0; i < p->size; i++) {
             result = max(result, p->arr[i].exp * PolyDeg(&p->arr[i].p));
         }
     }
@@ -235,7 +234,7 @@ poly_exp_t PolyDegBy(const Poly *p, size_t var_idx) {
     if (var_idx == 0) {
         return p->arr[p->size - 1].exp;
     } else {
-        for (int i = 0; i < p->size; ++i) {
+        for (size_t i = 0; i < p->size; ++i) {
             result = max(PolyDegBy(&p->arr[i].p, var_idx - 1), result);
         }
     }
@@ -247,7 +246,7 @@ void MultiplyByScalar(Poly *p, poly_coeff_t x) {
     if (PolyIsCoeff(p)) {
         p->coeff *= x;
     } else {
-        for (int i = 0; i < p->size; ++i) {
+        for (size_t i = 0; i < p->size; ++i) {
             MultiplyByScalar(&p->arr[i].p, x);
         }
     }
@@ -270,7 +269,7 @@ Poly PolyMul(const Poly *p, const Poly *q) {
 
         Mono* new_array = (Mono*) calloc(p->size, sizeof(Mono));
 
-        for (int i = 0; i < p->size; i++) {
+        for (size_t i = 0; i < p->size; i++) {
             Poly tmp_poly = PolyMul(&(p->arr[i].p), q);
 
             if (PolyIsZero(&tmp_poly)) {
@@ -289,10 +288,10 @@ Poly PolyMul(const Poly *p, const Poly *q) {
 
     Poly result_poly = PolyZero();
 
-    for (int i = 0; i < p->size; i++) {
+    for (size_t i = 0; i < p->size; i++) {
         Mono *new_array = (Mono*) malloc(q->size * sizeof(Mono));
 
-        for (int j = 0; j < q->size; j++) {
+        for (size_t j = 0; j < q->size; j++) {
             Poly new_poly = PolyMul(&(p->arr[i].p), &(q->arr[j].p));
             poly_exp_t new_exp = MonoGetExp(&(p->arr[i])) + MonoGetExp(&(q->arr[j]));
 
@@ -317,14 +316,14 @@ Poly PolyMul(const Poly *p, const Poly *q) {
 }
 
 poly_coeff_t power(poly_coeff_t coefficient, poly_exp_t exp) {
-    poly_coeff_t result = 1;
-    if (exp == 0) {
-        return 0;
+    if(exp == 0) return 1;
+    poly_coeff_t temporary = power(coefficient, exp / 2);
+    if(exp % 2 == 0){
+        return temporary * temporary;
     }
-    for (int i = 1; i <= exp; i++) {
-        result *= coefficient;
+    else{
+        return temporary * temporary * coefficient;
     }
-    return result;
 }
 
 Poly PolyAt(const Poly *p, poly_coeff_t x) {
@@ -341,10 +340,9 @@ Poly PolyAt(const Poly *p, poly_coeff_t x) {
         result = PolyAdd(&result, &p->arr[i].p);
         PolyToAdd[i] = result;
     }
-    for(int i = 0; i < p -> size - 1; ++i) PolyDestroy(&PolyToAdd[i]);
+    for(size_t i = 0; i < p -> size - 1; ++i) PolyDestroy(&PolyToAdd[i]);
     free(PolyToAdd);
     return result;
 
 }
-//TODO: uwagi: mainpage.docs(opisac wszystko)
 
