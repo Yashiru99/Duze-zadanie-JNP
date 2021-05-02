@@ -278,14 +278,10 @@ poly_exp_t PolyDeg(const Poly *p) {
     poly_exp_t result = -1;
     if (PolyIsZero(p)) return result;
     if (PolyIsCoeff(p)) return 0;
-    if (p->size == 1) {
-        result = p->arr[0].exp;
-        return result;
-    } else {
-        for (size_t i = 0; i < p->size; i++) {
-            result = Max(result, p->arr[i].exp * PolyDeg(&p->arr[i].p));
-        }
+    for (size_t i = 0; i < p->size; i++) {
+            result = Max(result, p->arr[i].exp + PolyDeg(&p->arr[i].p));
     }
+    
     return result;
 }
 
