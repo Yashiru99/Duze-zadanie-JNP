@@ -10,6 +10,13 @@ Uwaga: aktualna treść zadania znajduje się w [Moodle](https://moodle.mimuw.ed
 Tegoroczne duże zadanie polega na zaimplementowaniu operacji na wielomianach
 rzadkich wielu zmiennych.
 
-TODO
+Program tworzy wielomiany które zawsze są uporządkowane względem stopni. (stopnie są rosnące)
+Przy "głównych" zawsze tworzymy głęboką kopię wielomianu, nie robimy operacji w miejscu.
+Takie operacje to: dodawanie/odejmowanie/mnozenie.
+Pozostale funkcje co do zasady wykonują operacje w miejscu(aby zaoszczędzić na pamięci) na wejściowych wielomianach.
+Jedynym wyjątkiem jest:
+funkcja mnozenia wielomianu przez skalar która jest zaimplementowana dwa razy, raz robiona w miejscu, raz zwracająca kopię wielomianu.
+Spowodowane jest to tym, ze mnozenie przez skalar jest uzywane przez funkcje mogące modyfikować wejściowy wielomian
+ale równiez przez funkcję mnozącą wielomiany która zawsze co do zasady zwraca głęboką kopię, stąd taki podział.
 
 */
