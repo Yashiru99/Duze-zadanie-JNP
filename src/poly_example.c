@@ -1,16 +1,10 @@
-//
-// Created by Julian Kozłowski on 01/04/2021.
-//
-
-#include "poly.h"
-#include <stdio.h>
 #ifdef NDEBUG
 #undef NDEBUG
 #endif
 
 #include "poly.h"
 #include <assert.h>
-#include <stdbool.h>
+#include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 
@@ -33,7 +27,7 @@ static Poly MakePolyHelper(poly_exp_t dummy, ...) {
     size_t count = 0;
     while (true) {
         va_arg(list, Poly);
-        if (va_arg(list, poly_exp_t) < 0) // Mine: D Cóki są jakieś argumenty to je przyjmujemy
+        if (va_arg(list, poly_exp_t) < 0)
             break;
         count++;
     }
@@ -46,7 +40,7 @@ static Poly MakePolyHelper(poly_exp_t dummy, ...) {
         assert(i == 0 || MonoGetExp(&arr[i]) > MonoGetExp(&arr[i - 1]));
     }
     va_end(list);
-    Poly res = PolyAddMonos(count, arr); // size 2 arr()
+    Poly res = PolyAddMonos(count, arr);
     free(arr);
     return res;
 }
@@ -68,7 +62,7 @@ static bool TestAdd(Poly a, Poly b, Poly res) {
     return TestOp(a, b, res, PolyAdd);
 }
 
-static bool TestAddMonos(size_t count, Mono monos[], Poly res) { // exp = 2, p = P(coś)
+static bool TestAddMonos(size_t count, Mono monos[], Poly res) {
     Poly b = PolyAddMonos(count, monos);
     bool is_eq = PolyIsEq(&b, &res);
     PolyDestroy(&b);
@@ -290,7 +284,7 @@ static bool SimpleIsEqTest(void) {
     Poly b = C(2);
     Poly p = POLY_P;
     Poly c = PolyAdd(&p, &a);
-    res &= TestEq(PolyAdd(&p, &a), PolyAdd(&p, &b), false); // TODO: tu coś nie gra
+    res &= TestEq(PolyAdd(&p, &a), PolyAdd(&p, &b), false);
     PolyDestroy(&a);
     PolyDestroy(&b);
     PolyDestroy(&p);
@@ -310,125 +304,12 @@ static bool SimpleAtTest(void) {
 
 static bool OverflowTest(void) {
     bool res = true;
-    // res &= TestMul(P(C(1L << 32), 1), C(1L << 32), C(0));
+    res &= TestMul(P(C(1L << 32), 1), C(1L << 32), C(0));
     res &= TestAt(P(C(1), 64), 2, C(0));
     res &= TestAt(P(C(1), 0, C(1), 64), 2, C(1));
     res &= TestAt(P(P(C(1), 1), 64), 2, C(0));
     return res;
 }
-// tutaj zaczynam dodawanie swoich
-void corner_poly_add() {
-    // p = (((1 + x_3) + x_2) + x_1)
-    // q = (((-x_3) - x_2) - x_1)
-    // p + q = 1
-    assert(TestAdd(P(P(P(P(C(1), 0, C(1), 1), 0, C(1), 1), 0, C(1), 1), 0),
-                   P(P(P(P(C(-1), 1), 0, C(-1), 1), 0, C(-1), 1), 0), C(1)));
-
-    // p = 1
-    // q = (( ( (x_4) + x_3) + x_2) + x_1)
-    // p + q = (( ( (1 + x_4) + x_3 ) + x_2) + x_1)
-    assert(TestAdd(
-            C(1), P(P(P(P(P(C(1), 1), 0, C(1), 1), 0, C(1), 1), 0, C(1), 1), 0),
-            P(P(P(P(P(C(1), 0, C(1), 1), 0, C(1), 1), 0, C(1), 1), 0, C(1), 1), 0)));
-
-    // p = (1 + 2y + (1 + z)y^2 ) + xy^2
-    // q = -p
-    // p + q = 0
-    // TODO: co w tym tescie nie gra?
-    assert(TestAdd(
-            P(P(C(1), 0, C(2), 1, P(C(1), 0, C(1), 1), 2), 0, P(C(1), 2), 1),
-            P(P(C(-1), 0, C(-2), 1, P(C(-1), 0, C(-1), 1), 2), 0, P(C(-1), 2), 1),
-            C(0)));
-
-    assert(TestAdd(C(0), C(0), C(0)));
-
-    // p = ((3 + z)) + (((-1)z)y)x
-    // q = (5 + y) + (((1)z)y)x
-    // p + q = ((8 + z) + y)
-    assert(TestAdd(P(P(P(C(3), 0, C(1), 1), 0), 0, P(P(C(-1), 1), 1), 1),
-                   P(P(C(5), 0, C(1), 1), 0, P(P(C(1), 1), 1), 1),
-                   P(P(P(C(8), 0, C(1), 1), 0, C(1), 1), 0)));
-}
-void corner_add_monos() {
-    {
-        // odwrotna kolejność monos w tablicy
-        Mono m[] = {M(C(1), 4), M(C(2), 3), M(C(3), 2), M(C(4), 1), M(C(5), 0)};
-        assert(TestAddMonos(5, m, P(C(5), 0, C(4), 1, C(3), 2, C(2), 3, C(1), 4)));
-    }
-    {
-        // dla każdego wykładnika po 3 jednomiany, wszystkie się zerują (pomieszana
-        // kolejność na wejściu)
-        Mono m[] = {M(C(-1), 1), M(C(-1), 0), M(C(2), 0), M(C(1), 3), M(C(-1), 0),
-                    M(C(-2), 3), M(C(-1), 1), M(C(2), 1), M(C(1), 3)};
-        assert(TestAddMonos(9, m, C(0)));
-    }
-    {
-        // Czy głęboki jednomian się wyzeruje
-        // (1 - 2y + y^2) + x^3(y ^5 + y^7(1 + z^2 ))
-        Poly p = P(P(C(1), 0, C(-2), 1, C(1), 2), 0,
-                   P(C(1), 5, P(C(1), 0, C(1), 2), 6), 3);
-        Poly neg_p = PolyNeg(&p);
-        Poly p_clone = PolyClone(&p), neg_p_clone = PolyClone(&neg_p);
-
-        Mono m[] = {M(p, 0), M(neg_p, 0), M(neg_p_clone, 0), M(p_clone, 0)};
-        assert(TestAddMonos(4, m, C(0)));
-    }
-
-    {
-         // pusta tablica monos
-         Mono m[] = {};
-        assert(TestAddMonos(0, m, C(0)));
-    }
-}
-
-void CannotChangeArguments() {
-    Poly a = P(C(1), 0, C(-1), 1,           C(2), 3);
-    Poly b = P(C(1), 0, C(1),  1, C(-1), 2, C(4), 3);
-    Poly copy_a = PolyClone(&a);
-    Poly copy_b = PolyClone(&b);
-
-    (void) PolyIsZero(&a);
-    assert(PolyIsEq(&a, &copy_a));
-
-    (void) PolyIsCoeff(&a);
-    assert(PolyIsEq(&a, &copy_a));
-
-    Poly c = PolyAdd(&a, &b);
-    PolyDestroy(&c);
-    assert(PolyIsEq(&a, &copy_a) && PolyIsEq(&b, &copy_b));
-
-    /*c = PolyMul(&a, &b);
-    PolyDestroy(&c);
-    assert(PolyIsEq(&a, &copy_a) && PolyIsEq(&b, &copy_b));*/
-
-    c = PolyNeg(&a);
-    PolyDestroy(&c);
-    assert(PolyIsEq(&a, &copy_a));
-
-    c = PolySub(&a, &b);
-    PolyDestroy(&c);
-    assert(PolyIsEq(&a, &copy_a) && PolyIsEq(&b, &copy_b));
-
-    (void) PolyDegBy(&a, 1);
-    assert(PolyIsEq(&a, &copy_a));
-
-    (void) PolyDeg(&a);
-    assert(PolyIsEq(&a, &copy_a));
-
-    c = PolyAt(&a, 1);
-    PolyDestroy(&c);
-    assert(PolyIsEq(&a, &copy_a));
-
-    PolyDestroy(&a);
-    PolyDestroy(&b);
-    PolyDestroy(&copy_a);
-    PolyDestroy(&copy_b);
-}
-
-
-
-
-
 
 int main() {
     assert(SimpleAddTest());
@@ -440,8 +321,5 @@ int main() {
     assert(SimpleDegTest());
     assert(SimpleIsEqTest());
     assert(SimpleAtTest());
-    corner_poly_add();
-    corner_add_monos();
-    CannotChangeArguments();
     assert(OverflowTest());
 }

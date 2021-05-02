@@ -1,12 +1,11 @@
 /** @file
   Interfejs klasy wielomianów rzadkich wielu zmiennych
 
-  @authors Jakub Pawlewicz <pan@mimuw.edu.pl>, Marcin Peczarski <marpe@mimuw.edu.pl>
+  @authors Jakub Pawlewicz <pan@mimuw.edu.pl>, Marcin Peczarski <marpe@mimuw.edu.pl>, Julian Kozłowski <jk417694@students.mimuw.edu.pl>
   @copyright Uniwersytet Warszawski
   @date 2021
 */
-// TODO: Wycieki Pamięci
-// TODO: Mnożenie(problem z zarządzaniem pamięcią)
+
 #ifndef __POLY_H__
 #define __POLY_H__
 
@@ -118,14 +117,7 @@ static inline bool PolyIsZero(const Poly *p) {
  * @param[in] p : wielomian
  */
 void PolyDestroy(Poly *p);
-// ------------------------------------------------------------------------------- //
-/**
- * Drukuje wielomian.
- * @param[in] p : wielomian
- */
-void PolyPrint(Poly p);
-void MonoPrint(Mono m);
-// ------------------------------------------------------------------------------- //
+
 /**
  * Usuwa jednomian z pamięci.
  * @param[in] m : jednomian
@@ -166,7 +158,7 @@ Poly PolyAdd(const Poly *p, const Poly *q);
  * @return wielomian będący sumą jednomianów
  */
 Poly PolyAddMonos(size_t count, const Mono monos[]);
-void MultiplyByScalar(Poly *p, poly_coeff_t x);
+
 /**
  * Mnoży dwa wielomiany.
  * @param[in] p : wielomian @f$p@f$

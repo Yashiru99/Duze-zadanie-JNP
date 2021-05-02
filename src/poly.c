@@ -237,7 +237,20 @@ bool PolyIsEq(const Poly *p, const Poly *q) {
     }
     return true;
 }
-
+/**
+ * Mnozenie wielomianu przez skalar
+ * @param[in] p : wielomian
+ * @param[in] x : skalar
+ */
+static void MultiplyByScalar(Poly *p, poly_coeff_t x) {
+    if (PolyIsCoeff(p)) {
+        p->coeff *= x;
+    } else {
+        for (size_t i = 0; i < p->size; ++i) {
+            MultiplyByScalar(&p->arr[i].p, x);
+        }
+    }
+}
 
 Poly PolyNeg(const Poly *p) {
     Poly result = PolyClone(p);
@@ -290,20 +303,6 @@ poly_exp_t PolyDegBy(const Poly *p, size_t varIdX) {
     return result;
 }
 
-/**
- * Mnozenie wielomianu przez skalar
- * @param[in] p : wielomian
- * @param[in] x : skalar
- */
-static void MultiplyByScalar(Poly *p, poly_coeff_t x) {
-    if (PolyIsCoeff(p)) {
-        p->coeff *= x;
-    } else {
-        for (size_t i = 0; i < p->size; ++i) {
-            MultiplyByScalar(&p->arr[i].p, x);
-        }
-    }
-}
 /**
  * Mnozenie wielomianu przez wielomian ktory jest tozsamościowo stały
  * @param[in] p : wielomian
