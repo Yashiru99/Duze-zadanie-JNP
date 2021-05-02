@@ -142,6 +142,8 @@ Poly PolyClone(const Poly *p) {
         return PolyFromCoeff(p -> coeff);
     }
     Mono *newArray = malloc(sizeof(Mono) * p->size);
+    CHECK_PTR(newArray);
+
     for(size_t i = 0; i < p -> size; ++i) {
         Poly newPoly = PolyClone(&p->arr[i].p);
         newArray[i] = MonoFromPoly(&newPoly, p->arr[i].exp);
@@ -203,7 +205,6 @@ Poly PolySub(const Poly *p, const Poly *q) {
     return result;
 }
 
-// Wielomiany mam co do zasady posortowane, gdzie najwiekszy jest na koncu
 poly_exp_t PolyDeg(const Poly *p) {
     poly_exp_t result = -1;
     if (PolyIsZero(p)) return result;
@@ -245,6 +246,7 @@ void MultiplyByScalar(Poly *p, poly_coeff_t x) {
 
 static Poly MultiplyPolyByScalar(const Poly *p, const Poly *q){
     Mono* newArray = (Mono*) malloc(p->size * sizeof(Mono));
+    CHECK_PTR(newArray);
 
         for (size_t i = 0; i < p->size; i++) {
             Poly tempPoly = PolyMul(&(p->arr[i].p), q);
@@ -265,7 +267,8 @@ static Poly MultiplyPolyByPoly(const Poly *p, const Poly *q){
     Poly resultPoly = PolyZero();
 
     for (size_t i = 0; i < p->size; i++) {
-        Mono *new_array = (Mono*) malloc(q->size * sizeof(Mono));
+        Mono *newArray = (Mono*) malloc(q->size * sizeof(Mono));
+        CHECK_PTR(newArray);
 
         for (size_t j = 0; j < q->size; j++) {
             Poly newPoly = PolyMul(&(p->arr[i].p), &(q->arr[j].p));
@@ -275,13 +278,13 @@ static Poly MultiplyPolyByPoly(const Poly *p, const Poly *q){
                 newExp = 0;
             }
 
-            new_array[j] = MonoFromPoly(&newPoly, newExp);
+            newArray[j] = MonoFromPoly(&newPoly, newExp);
         }
 
-        Poly addToResult = PolyAddMonos(q->size, new_array);
+        Poly addToResult = PolyAddMonos(q->size, newArray);
         Poly finalPoly = PolyAdd(&resultPoly, &addToResult);
 
-        free(new_array);
+        free(newArray);
         PolyDestroy(&resultPoly);
         PolyDestroy(&addToResult);
 
@@ -326,6 +329,7 @@ Poly PolyAt(const Poly *p, poly_coeff_t x) {
         return *p;
     }
     Poly *polyToAdd = malloc(sizeof(Poly) * p -> size);
+    CHECK_PTR(polyToAdd);
     for (size_t i = 0; i < p->size; i++) {
         if (p->arr[i].exp != 0) {
             MultiplyByScalar(&p->arr[i].p, Power(x, p->arr[i].exp));
