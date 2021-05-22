@@ -12,25 +12,29 @@
 #include <string.h>
 #include <limits.h>
 #include <errno.h>
-// Struktura do trzyamania linii, ma długość oraz litery
 
 static bool LineIsPoly(line actualLine){
     assert(actualLine.letters != NULL);
     return isdigit(actualLine.letters[0]) || actualLine.letters[0] == '(' || actualLine.letters[0] == '-';
 }
+
 static bool LineIsCommand(line actualLine){
     assert(actualLine.letters != NULL && actualLine.length != 0);
     return isalpha(actualLine.letters[0]);
 }
 
+static bool PolyIsConst(line l){
+    return l.letters[0] != '(';
+}
 
 static bool IsAllowed(char a){
     return isdigit(a) || a == '\0' || a == ',' || a == '(' || a == ')' || a == '+' || a == '\0' || a == '\n' || a == '-' || a == EOF;
 }
+
 static bool CheckMono(line actualLine, size_t start, size_t end);
+
 static bool CheckPoly(line actualLine, size_t start, size_t end){
     bool result = true;
-    // jeżeli jest stały to tak go wczytujemy
     if(isdigit(actualLine.letters[start]) || actualLine.letters[start] == '-'){
         if(actualLine.letters[start] == '-')start++;
         while(start <= end && isdigit(actualLine.letters[start])){
@@ -38,8 +42,8 @@ static bool CheckPoly(line actualLine, size_t start, size_t end){
         }
         return start >= end;
     }
+
     size_t heap = 0;
-    // wpp wczytujemy go jako pojedyncze monomiany
     if(actualLine.letters[start] == '('){
         heap++;
         for(size_t i = start + 1; i <= end; ++i){
@@ -59,6 +63,7 @@ static bool CheckPoly(line actualLine, size_t start, size_t end){
     result &= heap == 0;
     return result;
 }
+
 static bool CheckMono(line actualLine, size_t start, size_t end){
     bool result = true;
     result &= isdigit(actualLine.letters[end]) != 0 ? 1 : 0;
@@ -69,13 +74,15 @@ static bool CheckMono(line actualLine, size_t start, size_t end){
     result &= CheckPoly(actualLine, start, end - 1);
     return result;
 }
+
 static void PolyIsWrong(size_t w){
     fprintf(stderr, "ERROR %ld WRONG POLY\n", w);
 }
+
 static bool CheckExp(long k){
     return k >= 0 && k <= INT_MAX;
 }
-// zwracam zaalokowane miejsce w pamięci(nasza linia)
+
 static line ReadLine(){
     char *buffor = NULL;
     size_t length = 0;
@@ -84,7 +91,7 @@ static line ReadLine(){
     if(nRead == -1) free(buffor);
     return nRead == -1 ? (line) {.length = 0, .letters = NULL} : (line) {.length = nRead, .letters = buffor};
 }
-//zwraca zaalokowany buffor
+
 static size_t numberOfPolys(line polyToRead){
     size_t numberOfPolys = 1;
     size_t heap = 0;
@@ -95,8 +102,7 @@ static size_t numberOfPolys(line polyToRead){
     }
     return numberOfPolys;
 }
-// tworzymy podlinię linii, zaczynamy od sIndex, końcymy na eIndex
-// zwraca zaalokowaną podlinię
+
 static line MakeSubLine(line l, size_t startingIndex, size_t endingIndex){
     size_t length = endingIndex - startingIndex + 1;
     line result;
@@ -105,8 +111,7 @@ static line MakeSubLine(line l, size_t startingIndex, size_t endingIndex){
     memcpy(result.letters, (l.letters + startingIndex), (length - 1) * sizeof(char));
     return result;
 }
-// nie alokujemy zawartości tablic, tylko całą tablicę linii(chyba zaleznie od strcpy)
-// rozdzielamy sobie na osobne Monos
+
 static lines MakeSinglePolys(line polyToRead){
     size_t numPolys = numberOfPolys(polyToRead);
     lines result;
@@ -136,7 +141,7 @@ static lines MakeSinglePolys(line polyToRead){
 }
 static Poly readMonos(line polyToRead, bool *isValid);
 
-size_t findIndex(char *l, size_t length){
+static size_t findIndex(char *l, size_t length){
     size_t heap = 0;
     for(size_t j = 0; j < length; j++){
         if(l[j] == '(')heap++;
@@ -145,6 +150,7 @@ size_t findIndex(char *l, size_t length){
     }
     return 0;
 }
+
 static Mono readSingleMono(line monoToRead, bool *isValid){
     size_t monoLength = monoToRead.length;
     size_t startIndex = findIndex(monoToRead.letters, monoLength);
@@ -152,17 +158,10 @@ static Mono readSingleMono(line monoToRead, bool *isValid){
     Mono result;
     long e = strtol(monoToRead.letters + startIndex, &end, 10);
     if(*end != ')' || !CheckExp(e))*isValid = false;
-    result.exp = e;
-    // Tutaj wczytuje wykładnik, ma być z przedziału od 0 do 2147483647
     line l = MakeSubLine(monoToRead, 1, startIndex - 1);
-    result.p = readMonos(l, isValid);
+    Poly q = readMonos(l, isValid);
     free(l.letters);
-    //return (Mono) {.exp = (poly_exp_t) strtol(monoToRead.letters + startIndex, &end, 10), .p = readMonos(MakeSubLine(monoToRead, 1, startIndex - 1))};
-    return result;
-}
-// osobny Case dla wielomianów stałych
-bool PolyIsConst(line l){
-    return l.letters[0] != '(';
+    return (Mono) {.exp = e, .p = q};
 }
 
 static Poly readMonos(line polyToRead, bool *isValid){
@@ -170,7 +169,6 @@ static Poly readMonos(line polyToRead, bool *isValid){
         char *end;
         long e = strtol(polyToRead.letters, &end, 10);
         if((*end != '\n' && *end != EOF && *end != '\0') || errno == ERANGE)*isValid = false;
-        // printf("%d", *isValid);
         return PolyFromCoeff(e);
     }
     lines arrayOfPolys = MakeSinglePolys(polyToRead);
@@ -187,11 +185,16 @@ static Poly readMonos(line polyToRead, bool *isValid){
     return result;
 }
 
+static void LineUp(line *l){
+    char *s = l -> letters;
+    while(*s){
+        *s = toupper((unsigned char) *s); s++;
+    }
+}
+
 void ReadFile(){
     line l = ReadLine();
-    for(int i = 0; i < l.length; i++){
-        l.letters[i] = toupper(l.letters[i]);
-    }
+    LineUp(&l);
     printf("%s", l.letters);
     size_t numberOfLine = 1;
     Poly p;
@@ -223,9 +226,7 @@ void ReadFile(){
         }
         free(l.letters);
         l = ReadLine();
-        for(int i = 0; i < l.length; i++){
-            l.letters[i] = toupper(l.letters[i]);
-        }
+        if(l.letters != NULL)LineUp(&l);
         numberOfLine++;
     }
     CleanHeap(h);
