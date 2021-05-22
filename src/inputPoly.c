@@ -13,6 +13,13 @@
 #include <limits.h>
 #include <errno.h>
 
+#define CHECK_PTR(p)  \
+  do {                \
+    if (p == NULL) {  \
+      exit(1);        \
+    }                 \
+  } while (0)
+
 static bool LineIsPoly(line actualLine){
     assert(actualLine.letters != NULL);
     return isdigit(actualLine.letters[0]) || actualLine.letters[0] == '(' || actualLine.letters[0] == '-';
@@ -21,6 +28,11 @@ static bool LineIsPoly(line actualLine){
 static bool LineIsCommand(line actualLine){
     assert(actualLine.letters != NULL && actualLine.length != 0);
     return isalpha(actualLine.letters[0]);
+}
+
+static bool LineIsCommentOrEmpty(line actualLine){
+    assert(actualLine.letters != NULL && actualLine.length != 0);
+    return actualLine.letters[0] == '#' || actualLine.letters[0] == '\n' || actualLine.letters[0] == EOF;
 }
 
 static bool PolyIsConst(line l){
@@ -88,6 +100,7 @@ static line ReadLine(){
     size_t length = 0;
     int nRead = 0;
     nRead = getline(&buffor, &length, stdin);
+    CHECK_PTR(buffor);
     if(nRead == -1) free(buffor);
     return nRead == -1 ? (line) {.length = 0, .letters = NULL} : (line) {.length = nRead, .letters = buffor};
 }
@@ -108,6 +121,7 @@ static line MakeSubLine(line l, size_t startingIndex, size_t endingIndex){
     line result;
     result.length = length;
     result.letters = calloc(length, sizeof(char));
+    CHECK_PTR(result.letters);
     memcpy(result.letters, (l.letters + startingIndex), (length - 1) * sizeof(char));
     return result;
 }
@@ -116,6 +130,7 @@ static lines MakeSinglePolys(line polyToRead){
     size_t numPolys = numberOfPolys(polyToRead);
     lines result;
     line *arrayOfPolys = malloc(numPolys * sizeof(line));
+    CHECK_PTR(arrayOfPolys);
     size_t numberOfPolysLeft = numPolys;
     size_t length = 1;
     size_t startingIndex = 0;
@@ -173,6 +188,7 @@ static Poly readMonos(line polyToRead, bool *isValid){
     }
     lines arrayOfPolys = MakeSinglePolys(polyToRead);
     Mono *arrayOfMonos = malloc(sizeof(Mono) * arrayOfPolys.length);
+    CHECK_PTR(arrayOfMonos);
     for(size_t i = 0; i < arrayOfPolys.length; i++){
         arrayOfMonos[i] = readSingleMono(arrayOfPolys.Polys[i], isValid);
     }
@@ -194,8 +210,7 @@ static void LineUp(line *l){
 
 void ReadFile(){
     line l = ReadLine();
-    LineUp(&l);
-    printf("%s", l.letters);
+    // LineUp(&l);
     size_t numberOfLine = 1;
     Poly p;
     heap *h = NULL;
@@ -221,12 +236,12 @@ void ReadFile(){
         else if(LineIsCommand(l)){
             ReadCommand(l, numberOfLine, h);
         }
-        else{
+        else if(!LineIsCommentOrEmpty(l)){
             PolyIsWrong(numberOfLine);
         }
         free(l.letters);
         l = ReadLine();
-        if(l.letters != NULL)LineUp(&l);
+        // if(l.letters != NULL)LineUp(&l);
         numberOfLine++;
     }
     CleanHeap(h);

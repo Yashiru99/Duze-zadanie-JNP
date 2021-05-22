@@ -1,7 +1,3 @@
-//
-// Created by Julian Kozłowski on 13/05/2021.
-//
-
 #include "Commands.h"
 #include "inputPoly.h"
 #include <string.h>
@@ -21,7 +17,7 @@ bool WrongCommand(line l, size_t index, size_t w){
 
 bool isEmpty(heap *h, size_t w){
     if(HeapIsEmpty(h)){
-        fprintf(stderr, "ERROR %ld AT WRONG VALUE\n", w);
+        fprintf(stderr, "ERROR %ld STACK UNDERFLOW\n", w);
         return true;
     }
     return false;
@@ -60,6 +56,10 @@ void ReadCommand(line l, size_t w, heap *h){
         }
         AddHeap(h, PolyZero());
     }
+    else if(!strncmp(l.letters, "IS_EQ", 5)){
+        if(WrongCommand(l, 5, w) || HasTwo(h, w))return;
+        printf("%d", PolyIsEq(&h -> heap[h -> headIndex - 1], &h -> heap[h -> headIndex - 2]));
+    }
     else if(!strncmp(l.letters, "IS_COEFF", 8)){
         if(WrongCommand(l, 8, w) || isEmpty(h, w)){
             return;
@@ -74,7 +74,7 @@ void ReadCommand(line l, size_t w, heap *h){
     }
     else if(!strncmp(l.letters, "CLONE", 5)){
         if(WrongCommand(l, 5, w) || isEmpty(h, w))return;
-        AddHeap(h, h -> heap[h -> headIndex - 1]);
+        AddHeap(h, PolyClone(&h -> heap[h -> headIndex - 1]));
     }
     else if(!strncmp(l.letters, "ADD", 3)){
         if(WrongCommand(l, 3, w) || HasTwo(h, w))return;
@@ -100,31 +100,44 @@ void ReadCommand(line l, size_t w, heap *h){
         PolyDestroy(&p);
         PolyDestroy(&q);
     }
-    else if(!strncmp(l.letters, "IS_EQ", 5)){
-        if(WrongCommand(l, 3, w) || HasTwo(h, w))return;
-        printf("%d", PolyIsEq(&h -> heap[h -> headIndex - 1], &h -> heap[h -> headIndex - 2]));
-    }
     else if(!strncmp(l.letters, "DEG_BY", 6)){
         if(l.letters[6] != ' ' || !isdigit(l.letters[7])){
             fprintf(stderr, "ERROR %ld DEG BY WRONG VARIABLE\n", w);
+            return;
         }
-        size_t deg = strtoul(l.letters + 6, NULL, 10);
-        if(errno == ERANGE)fprintf(stderr, "ERROR %ld DEG BY WRONG VARIABLE\n", w);
-        if(WrongCommand(l, 3, w) || isEmpty(h, w))return;
+        char *end;
+        size_t deg = strtoul(l.letters + 6, &end, 10);
+        if(errno == ERANGE){
+            fprintf(stderr, "ERROR %ld DEG BY WRONG VARIABLE\n", w);
+            return;
+        }
+        if(isEmpty(h, w))return;
+        if((*end != '\n' && *end != EOF)){
+            fprintf(stderr, "ERROR %ld DEG BY WRONG VARIABLE\n", w);
+            return;
+        }
         printf("%d", PolyDegBy(&h -> heap[h -> headIndex - 1], deg));
     }
     else if(!strncmp(l.letters, "DEG", 3)){
         if(WrongCommand(l, 3, w) || isEmpty(h, w))return;
         printf("%d", PolyDeg(&h -> heap[h -> headIndex - 1]));
     }
-    // Za duże liczby robimy strtol i sprawdzamy errno
     else if(!strncmp(l.letters, "AT", 2)){
         if(l.letters[2] != ' ' || (!isdigit(l.letters[3]) && l.letters[3] != '-')){
-            fprintf(stderr,"ERROR %ld AT WRONG VARIABLE\n", w);
+            fprintf(stderr,"ERROR %ld AT WRONG VALUE\n", w);
+            return;
         }
-        long deg = strtoll(l.letters + 2, NULL, 10);;
-        if(errno == ERANGE)fprintf(stderr,"ERROR %ld AT WRONG VARIABLE\n", w);
+        char *end;
+        long deg = strtoll(l.letters + 2, &end, 10);
+        if(errno == ERANGE){
+            fprintf(stderr,"ERROR %ld AT WRONG VALUE\n", w);
+            return;
+        }
         if(isEmpty(h, w))return;
+        if((*end != '\n' && *end != EOF)){
+            fprintf(stderr, "ERROR %ld DEG BY WRONG VALUE\n", w);
+            return;
+        }
         Poly p = PopHeap(h);
         AddHeap(h, PolyAt(&p, deg));
         PolyDestroy(&p);
