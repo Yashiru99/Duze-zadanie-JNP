@@ -35,10 +35,6 @@ static bool LineIsCommentOrEmpty(line actualLine){
     return actualLine.letters[0] == '#' || actualLine.letters[0] == '\n' || actualLine.letters[0] == EOF;
 }
 
-static bool PolyIsConst(line l){
-    return l.letters[0] != '(';
-}
-
 static bool IsAllowed(char a){
     return isdigit(a) || a == '\0' || a == ',' || a == '(' || a == ')' || a == '+' || a == '\0' || a == '\n' || a == '-' || a == EOF;
 }
@@ -105,10 +101,10 @@ static line ReadLine(){
     return nRead == -1 ? (line) {.length = 0, .letters = NULL} : (line) {.length = nRead, .letters = buffor};
 }
 
-static size_t numberOfPolys(line polyToRead){
+static size_t numberOfPolys(line polyToRead, size_t start, size_t end){
     size_t numberOfPolys = 1;
     size_t heap = 0;
-    for(int i = 0; i < polyToRead.length; i++){
+    for(int i = start; i < end; i++){
         if(polyToRead.letters[i] == '(')heap++;
         if(polyToRead.letters[i] == ')')heap--;
         if(polyToRead.letters[i] == '+' && !heap)numberOfPolys++;
@@ -116,88 +112,63 @@ static size_t numberOfPolys(line polyToRead){
     return numberOfPolys;
 }
 
-static line MakeSubLine(line l, size_t startingIndex, size_t endingIndex){
-    size_t length = endingIndex - startingIndex + 1;
-    line result;
-    result.length = length;
-    result.letters = calloc(length, sizeof(char));
-    CHECK_PTR(result.letters);
-    memcpy(result.letters, (l.letters + startingIndex), (length - 1) * sizeof(char));
-    return result;
-}
+// nie alokujemy zawartości tablic, tylko całą tablicę linii(chyba zaleznie od strcpy)
+// rozdzielamy sobie na osobne Monos
+static Poly readMonos(line polyToRead, bool *isValid, size_t start, size_t end);
 
-static lines MakeSinglePolys(line polyToRead){
-    size_t numPolys = numberOfPolys(polyToRead);
-    lines result;
-    line *arrayOfPolys = malloc(numPolys * sizeof(line));
-    CHECK_PTR(arrayOfPolys);
-    size_t numberOfPolysLeft = numPolys;
-    size_t length = 1;
-    size_t startingIndex = 0;
-    size_t index = 0;
-    size_t numberOfBrackets = 1;
-    for(size_t j = 1; j < polyToRead.length; j++){
-        if(!numberOfBrackets && (polyToRead.letters[j] == '+' || polyToRead.letters[j] == '\n' || polyToRead.letters[j] == EOF)){
-            arrayOfPolys[index] = MakeSubLine(polyToRead, startingIndex, length);
-            index++;
-            startingIndex = j + 1;
-            numberOfPolysLeft--;
-        }
-        if(polyToRead.letters[j] == '(')numberOfBrackets++;
-        if(polyToRead.letters[j] == ')')numberOfBrackets--;
-        length++;
-    }
-    result.length = numPolys;
-    if(numberOfPolysLeft){
-        arrayOfPolys[index] = MakeSubLine(polyToRead, startingIndex, length);
-    }
-    result.Polys = arrayOfPolys;
-    return result;
-}
-static Poly readMonos(line polyToRead, bool *isValid);
-
-static size_t findIndex(char *l, size_t length){
+size_t findIndex(char *l, size_t start, size_t end){
     size_t heap = 0;
-    for(size_t j = 0; j < length; j++){
+    for(size_t j = start; j < end; j++){
         if(l[j] == '(')heap++;
         if(l[j] == ')')heap--;
-        if(l[j] == ',' && heap == 1)return j+1;
+        if(l[j] == ',' && heap == 1)return j;
     }
     return 0;
 }
-
-static Mono readSingleMono(line monoToRead, bool *isValid){
+static Mono readSingleMono(line monoToRead, bool *isValid, size_t start, size_t end){
     size_t monoLength = monoToRead.length;
-    size_t startIndex = findIndex(monoToRead.letters, monoLength);
-    char *end;
+    size_t startIndex = findIndex(monoToRead.letters, start, end);
     Mono result;
-    long e = strtol(monoToRead.letters + startIndex, &end, 10);
-    if(*end != ')' || !CheckExp(e))*isValid = false;
-    line l = MakeSubLine(monoToRead, 1, startIndex - 1);
-    Poly q = readMonos(l, isValid);
-    free(l.letters);
-    return (Mono) {.exp = e, .p = q};
+    char *endC;
+    long e = strtol(monoToRead.letters + startIndex + 1, &endC, 10);
+    if(*endC != ')' || !CheckExp(e))*isValid = false;
+    result.exp = e;
+    result.p = readMonos(monoToRead, isValid, start + 1, startIndex - 1);
+    //return (Mono) {.exp = (poly_exp_t) strtol(monoToRead.letters + startIndex, &end, 10), .p = readMonos(MakeSubLine(monoToRead, 1, startIndex - 1))};
+    return result;
+}
+// osobny Case dla wielomianów stałych
+bool PolyIsConst(line l, size_t start){
+    return l.letters[start] != '(';
 }
 
-static Poly readMonos(line polyToRead, bool *isValid){
-    if(PolyIsConst(polyToRead)){
-        char *end;
-        long e = strtol(polyToRead.letters, &end, 10);
-        if((*end != '\n' && *end != EOF && *end != '\0') || errno == ERANGE)*isValid = false;
+static Poly readMonos(line polyToRead, bool *isValid, size_t start, size_t end){
+    if(PolyIsConst(polyToRead, start)){
+        char *endC;
+        long e = strtol(polyToRead.letters + start, &endC, 10);
+        if((*endC != '\n' && *endC != EOF && *endC != '\0' && *endC != ',') || errno == ERANGE)*isValid = false;
         return PolyFromCoeff(e);
     }
-    lines arrayOfPolys = MakeSinglePolys(polyToRead);
-    Mono *arrayOfMonos = malloc(sizeof(Mono) * arrayOfPolys.length);
-    CHECK_PTR(arrayOfMonos);
-    for(size_t i = 0; i < arrayOfPolys.length; i++){
-        arrayOfMonos[i] = readSingleMono(arrayOfPolys.Polys[i], isValid);
+    size_t nPol = numberOfPolys(polyToRead, start, end);
+    size_t usedMonos = nPol;
+    size_t heap = 0;
+    size_t indexOfMono = 0;
+    Mono* monosToAdd = malloc(sizeof(Mono) * nPol);
+
+    for(size_t i = start; i <= end; ++i){
+        if(polyToRead.letters[i] == '(')heap++;
+        if(polyToRead.letters[i] == ')')heap--;
+        if(heap == 0){
+            monosToAdd[indexOfMono] = readSingleMono(polyToRead, isValid, start, i);
+            if(polyToRead.letters[i+1] == '+')i++;
+            start = i + 1;
+            usedMonos--;
+            indexOfMono++;
+        }
     }
-    Poly result = PolyAddMonos(arrayOfPolys.length, arrayOfMonos);
-    free(arrayOfMonos);
-    for(size_t i = 0; i < arrayOfPolys.length; i++){
-        free(arrayOfPolys.Polys[i].letters);
-    }
-    free(arrayOfPolys.Polys);
+
+    Poly result = PolyAddMonos(nPol, monosToAdd);
+    free(monosToAdd);
     return result;
 }
 
@@ -219,18 +190,14 @@ void ReadFile(){
     while(l.letters != NULL){
         if(LineIsPoly(l) && CheckPoly(l, 0, l.length - 2)){
             isValid = true;
-            p = readMonos(l, &isValid);
+            p = readMonos(l, &isValid, 0, l.length - 2);
             if(!isValid){
                 PolyDestroy(&p);
                 PolyIsWrong(numberOfLine);
             }
-            else if(CanBeSimflified(p)){
-                Poly q = PolyFromCoeff(SimplifyToCoeff(p));
-                PolyDestroy(&p);
-                AddHeap(h, q);
-            }
             else{
-                AddHeap(h, p);
+                Poly q = SimplifyToCoeff(p);
+                AddHeap(h, q);
             }
         }
         else if(LineIsCommand(l)){
@@ -241,7 +208,7 @@ void ReadFile(){
         }
         free(l.letters);
         l = ReadLine();
-        // if(l.letters != NULL)LineUp(&l);
+        //if(l.letters != NULL)LineUp(&l);
         numberOfLine++;
     }
     CleanHeap(h);

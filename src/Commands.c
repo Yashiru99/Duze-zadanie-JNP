@@ -58,19 +58,19 @@ void ReadCommand(line l, size_t w, heap *h){
     }
     else if(!strncmp(l.letters, "IS_EQ", 5)){
         if(WrongCommand(l, 5, w) || HasTwo(h, w))return;
-        printf("%d", PolyIsEq(&h -> heap[h -> headIndex - 1], &h -> heap[h -> headIndex - 2]));
+        printf("%d\n", PolyIsEq(&h -> heap[h -> headIndex - 1], &h -> heap[h -> headIndex - 2]));
     }
     else if(!strncmp(l.letters, "IS_COEFF", 8)){
         if(WrongCommand(l, 8, w) || isEmpty(h, w)){
             return;
         }
-        printf("%d", PolyIsCoeff(&h -> heap[h -> headIndex - 1]));
+        printf("%d\n", PolyIsCoeff(&h -> heap[h -> headIndex - 1]));
     }
     else if(!strncmp(l.letters, "IS_ZERO", 7)){
         if(WrongCommand(l, 7, w) || isEmpty(h, w)){
             return;
         }
-        printf("%d", PolyIsZero(&h -> heap[h -> headIndex - 1]));
+        printf("%d\n", PolyIsZero(&h -> heap[h -> headIndex - 1]));
     }
     else if(!strncmp(l.letters, "CLONE", 5)){
         if(WrongCommand(l, 5, w) || isEmpty(h, w))return;
@@ -80,7 +80,8 @@ void ReadCommand(line l, size_t w, heap *h){
         if(WrongCommand(l, 3, w) || HasTwo(h, w))return;
         Poly p = PopHeap(h);
         Poly q = PopHeap(h);
-        AddHeap(h, PolyAdd(&p, &q));
+        Poly z = SimplifyToCoeff(PolyAdd(&p, &q));
+        AddHeap(h, z);
         PolyDestroy(&p);
         PolyDestroy(&q);
     }
@@ -88,7 +89,8 @@ void ReadCommand(line l, size_t w, heap *h){
         if(WrongCommand(l, 3, w) || HasTwo(h, w))return;
         Poly p = PopHeap(h);
         Poly q = PopHeap(h);
-        AddHeap(h, PolyMul(&p, &q));
+        Poly z = SimplifyToCoeff(PolyMul(&p, &q));
+        AddHeap(h, z);
         PolyDestroy(&p);
         PolyDestroy(&q);
     }
@@ -96,7 +98,8 @@ void ReadCommand(line l, size_t w, heap *h){
         if(WrongCommand(l, 3, w) || HasTwo(h, w))return;
         Poly p = PopHeap(h);
         Poly q = PopHeap(h);
-        AddHeap(h, PolySub(&p, &q));
+        Poly z = SimplifyToCoeff(PolySub(&p, &q));
+        AddHeap(h, z);
         PolyDestroy(&p);
         PolyDestroy(&q);
     }
@@ -116,11 +119,11 @@ void ReadCommand(line l, size_t w, heap *h){
             fprintf(stderr, "ERROR %ld DEG BY WRONG VARIABLE\n", w);
             return;
         }
-        printf("%d", PolyDegBy(&h -> heap[h -> headIndex - 1], deg));
+        printf("%d\n", PolyDegBy(&h -> heap[h -> headIndex - 1], deg));
     }
     else if(!strncmp(l.letters, "DEG", 3)){
         if(WrongCommand(l, 3, w) || isEmpty(h, w))return;
-        printf("%d", PolyDeg(&h -> heap[h -> headIndex - 1]));
+        printf("%d\n", PolyDeg(&h -> heap[h -> headIndex - 1]));
     }
     else if(!strncmp(l.letters, "AT", 2)){
         if(l.letters[2] != ' ' || (!isdigit(l.letters[3]) && l.letters[3] != '-')){
@@ -139,7 +142,8 @@ void ReadCommand(line l, size_t w, heap *h){
             return;
         }
         Poly p = PopHeap(h);
-        AddHeap(h, PolyAt(&p, deg));
+        Poly z = SimplifyToCoeff(PolyAt(&p, deg));
+        AddHeap(h, z);
         PolyDestroy(&p);
     }
     else if(!strncmp(l.letters, "PRINT", 5)){

@@ -413,14 +413,28 @@ Poly PolyAt(const Poly *p, poly_coeff_t x) {
     return result;
 
 }
-bool CanBeSimflified(Poly p){
-    if(PolyIsCoeff(&p))return true;
-    if(p.size == 1 && p.arr[0].exp == 0 && p.arr[0].p.arr == NULL) return CanBeSimflified(p.arr[0].p);
+
+static bool CanBeSimflified(Poly p, bool *CoeffAppeared){
+    if(PolyIsCoeff(&p) && !PolyIsZero(&p) && !(*CoeffAppeared)){
+        *CoeffAppeared = true;
+        return true;
+    }
+    if(PolyIsCoeff(&p) && !PolyIsZero(&p) && *CoeffAppeared)return false;
+    if(PolyIsZero(&p) && *CoeffAppeared)return true;
+    if(p.size != 0) return false;
+    if(p.size == 1 && p.arr[0].exp != 0 && *CoeffAppeared)return false;
+    if(p.size == 1 && p.arr[0].exp == 0 && CanBeSimflified(p.arr[0].p, CoeffAppeared))return true;
     return false;
 }
 
-poly_coeff_t SimplifyToCoeff(Poly p){
-    if(PolyIsCoeff(&p))return p.coeff;
-    if(p.size == 1 && p.arr[0].exp == 0) return SimplifyToCoeff(p.arr[0].p);
-    return p.coeff;
+Poly SimplifyToCoeff(Poly p){
+    bool coeff = false;
+    if(!PolyIsCoeff(&p) && CanBeSimflified(p, &coeff)){
+        Poly q = p;
+        while(q.arr != NULL)q = q.arr[0].p;
+        q = PolyFromCoeff(q.coeff);
+        PolyDestroy(&p);
+        return q;
+    }
+    return p;
 }
