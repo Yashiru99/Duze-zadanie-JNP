@@ -312,7 +312,7 @@ static bool OverflowTest(void) {
 }
 
 int main() {
-    assert(SimpleAddTest());
+    /*assert(SimpleAddTest());
     assert(SimpleAddMonosTest());
     assert(SimpleMulTest());
     assert(SimpleNegTest());
@@ -321,5 +321,6 @@ int main() {
     assert(SimpleDegTest());
     assert(SimpleIsEqTest());
     assert(SimpleAtTest());
-    assert(OverflowTest());
+    assert(OverflowTest());*/
+    ReadFile();
 }

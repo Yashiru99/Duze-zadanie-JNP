@@ -413,4 +413,14 @@ Poly PolyAt(const Poly *p, poly_coeff_t x) {
     return result;
 
 }
+bool CanBeSimflified(Poly p){
+    if(PolyIsCoeff(&p))return true;
+    if(p.size == 1 && p.arr[0].exp == 0 && p.arr[0].p.arr == NULL) return CanBeSimflified(p.arr[0].p);
+    return false;
+}
 
+poly_coeff_t SimplifyToCoeff(Poly p){
+    if(PolyIsCoeff(&p))return p.coeff;
+    if(p.size == 1 && p.arr[0].exp == 0) return SimplifyToCoeff(p.arr[0].p);
+    return p.coeff;
+}
