@@ -221,5 +221,4 @@ bool PolyIsEq(const Poly *p, const Poly *q);
  * @return @f$p(x, x_0, x_1, \ldots)@f$
  */
 Poly PolyAt(const Poly *p, poly_coeff_t x);
-Poly SimplifyToCoeff(Poly p);
 #endif /* __POLY_H__ */

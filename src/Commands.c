@@ -80,7 +80,7 @@ void ReadCommand(line l, size_t w, heap *h){
         if(WrongCommand(l, 3, w) || HasTwo(h, w))return;
         Poly p = PopHeap(h);
         Poly q = PopHeap(h);
-        Poly z = SimplifyToCoeff(PolyAdd(&p, &q));
+        Poly z = PolyAdd(&p, &q);
         AddHeap(h, z);
         PolyDestroy(&p);
         PolyDestroy(&q);
@@ -89,7 +89,7 @@ void ReadCommand(line l, size_t w, heap *h){
         if(WrongCommand(l, 3, w) || HasTwo(h, w))return;
         Poly p = PopHeap(h);
         Poly q = PopHeap(h);
-        Poly z = SimplifyToCoeff(PolyMul(&p, &q));
+        Poly z = PolyMul(&p, &q);
         AddHeap(h, z);
         PolyDestroy(&p);
         PolyDestroy(&q);
@@ -98,7 +98,7 @@ void ReadCommand(line l, size_t w, heap *h){
         if(WrongCommand(l, 3, w) || HasTwo(h, w))return;
         Poly p = PopHeap(h);
         Poly q = PopHeap(h);
-        Poly z = SimplifyToCoeff(PolySub(&p, &q));
+        Poly z = PolySub(&p, &q);
         AddHeap(h, z);
         PolyDestroy(&p);
         PolyDestroy(&q);
@@ -142,7 +142,7 @@ void ReadCommand(line l, size_t w, heap *h){
             return;
         }
         Poly p = PopHeap(h);
-        Poly z = SimplifyToCoeff(PolyAt(&p, deg));
+        Poly z = PolyAt(&p, deg);
         AddHeap(h, z);
         PolyDestroy(&p);
     }

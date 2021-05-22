@@ -59,6 +59,7 @@ static bool CheckPoly(line actualLine, size_t start, size_t end){
             if(actualLine.letters[i] == '(')heap++;
             if(actualLine.letters[i] == ')')heap--;
             if(heap == 0){
+                result &= (actualLine.letters[i+1] == '+' || actualLine.letters[i+1] == '\n' || actualLine.letters[i+1] == EOF || actualLine.letters[i+1] == ',');
                 result &= CheckMono(actualLine, start + 1, i - 1);
                 if(actualLine.letters[i+1] == '+'){
                     i++;
@@ -196,8 +197,7 @@ void ReadFile(){
                 PolyIsWrong(numberOfLine);
             }
             else{
-                Poly q = SimplifyToCoeff(p);
-                AddHeap(h, q);
+                AddHeap(h, p);
             }
         }
         else if(LineIsCommand(l)){

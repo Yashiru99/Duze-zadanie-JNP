@@ -172,6 +172,11 @@ Poly PolyAddMonos(size_t count, const Mono monos[]) {
         free(CopyOfMonos);
         return (Poly) {.size = 0, .arr = NULL};
     }
+    if(realCount == 1 && MonoGetExp(&CopyOfMonos[0]) == 0 && PolyIsCoeff(&CopyOfMonos[0].p)){
+        Poly res = PolyFromCoeff(CopyOfMonos[0].p.coeff);
+        free(CopyOfMonos);
+        return res;
+    }
     return (Poly) {.size = realCount, .arr = CopyOfMonos};
 }
 
@@ -412,29 +417,4 @@ Poly PolyAt(const Poly *p, poly_coeff_t x) {
     free(polyToAdd);
     return result;
 
-}
-
-static bool CanBeSimflified(Poly p, bool *CoeffAppeared){
-    if(PolyIsCoeff(&p) && !PolyIsZero(&p) && !(*CoeffAppeared)){
-        *CoeffAppeared = true;
-        return true;
-    }
-    if(PolyIsCoeff(&p) && !PolyIsZero(&p) && *CoeffAppeared)return false;
-    if(PolyIsZero(&p) && *CoeffAppeared)return true;
-    if(p.size != 0) return false;
-    if(p.size == 1 && p.arr[0].exp != 0 && *CoeffAppeared)return false;
-    if(p.size == 1 && p.arr[0].exp == 0 && CanBeSimflified(p.arr[0].p, CoeffAppeared))return true;
-    return false;
-}
-
-Poly SimplifyToCoeff(Poly p){
-    bool coeff = false;
-    if(!PolyIsCoeff(&p) && CanBeSimflified(p, &coeff)){
-        Poly q = p;
-        while(q.arr != NULL)q = q.arr[0].p;
-        q = PolyFromCoeff(q.coeff);
-        PolyDestroy(&p);
-        return q;
-    }
-    return p;
 }
