@@ -3,6 +3,7 @@
 #endif
 
 #include "poly.h"
+#include "inputPoly.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -312,7 +313,7 @@ static bool OverflowTest(void) {
 }
 
 int main() {
-    /*assert(SimpleAddTest());
+    assert(SimpleAddTest());
     assert(SimpleAddMonosTest());
     assert(SimpleMulTest());
     assert(SimpleNegTest());
@@ -321,6 +322,6 @@ int main() {
     assert(SimpleDegTest());
     assert(SimpleIsEqTest());
     assert(SimpleAtTest());
-    assert(OverflowTest());*/
+    assert(OverflowTest());
     ReadFile();
 }

@@ -13,7 +13,7 @@ set_property(GLOBAL PROPERTY RULE_MESSAGES OFF)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # Ustawiamy wspólne opcje kompilowania dla wszystkich wariantów projektu.
-set(CMAKE_C_FLAGS "-std=c11 -Wall -Wextra -O2")
+set(CMAKE_C_FLAGS "-std=c11 -O2 -Wextra -Wall")
 # Domyślne opcje dla wariantów Release i Debug są sensowne.
 # Jeśli to konieczne, ustawiamy tu inne.
 # set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
@@ -23,7 +23,13 @@ set(CMAKE_C_FLAGS "-std=c11 -Wall -Wextra -O2")
 set(SOURCE_FILES
     src/poly.c
     src/poly.h
-    src/poly_example.c)
+    src/poly_example.c
+    src/inputPoly.c
+    src/inputPoly.h
+    src/Commands.c
+    src/Commands.h
+    src/heap.c
+    src/heap.h)
 
 # Wskazujemy plik wykonywalny.
 add_executable(poly ${SOURCE_FILES})
