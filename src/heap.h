@@ -9,9 +9,16 @@
 #ifndef POLY_HEAP_H
 #define POLY_HEAP_H
 #include "poly.h"
+
+/**
+ * Struktura przetrymujaca tablicowo zbudowany stos.
+ */
 typedef struct{
+    /** Tablica wielomianow */
     Poly *heap;
+    /** maksymalna wielkosc stosu */
     size_t size;
+    /** indeks na pierwsze wolne miejsce w tablicy */
     size_t headIndex;
 }heap;
 

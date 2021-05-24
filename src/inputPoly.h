@@ -10,8 +10,13 @@
 #define POLY_INPUTPOLY_H
 #include <stdio.h>
 
+/**
+ * Struktura przetrzymujaca linie.
+ */
 typedef struct{
+    /** dlugosc linii */
     size_t length;
+    /** tablica charow, czyli nasz string */
     char *letters;
 }line;
 

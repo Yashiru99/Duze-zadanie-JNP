@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+/** Makro do sprawdzenia czy alokacja się powiodła */
 #define CHECK_PTR(p)  \
   do {                \
     if (p == NULL) {  \
@@ -70,7 +71,6 @@ Poly PolyAdd(const Poly *p, const Poly *q) {
     return result;
 }
 
-
 void PolyDestroy(Poly *p) {
     if (!PolyIsCoeff(p)) {
         for(size_t j = 0; j < p -> size; ++j){
@@ -79,7 +79,12 @@ void PolyDestroy(Poly *p) {
         free(p -> arr);
     }
 }
-
+/**
+ * Funkcja pomocnicza do przyrownywania elementow.
+ * @param[in] a : wskaznik na pierwszy element
+ * @param[in] b : wskaznik na drugi element
+ * @return jaka jest relacja elementow a i b?
+ */
 static int MonoComparator(const void *a, const void *b) {
     Mono *_a = (Mono *) a;
     Mono *_b = (Mono *) b;
