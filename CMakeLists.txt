@@ -23,11 +23,11 @@ set(CMAKE_C_FLAGS "-std=c11 -O2 -Wextra -Wall")
 set(SOURCE_FILES
     src/poly.c
     src/poly.h
-    src/poly_example.c
+    src/calc.c
     src/inputPoly.c
     src/inputPoly.h
-    src/Commands.c
-    src/Commands.h
+    src/commands.c
+    src/commands.h
     src/heap.c
     src/heap.h)
 

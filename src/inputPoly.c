@@ -1,6 +1,14 @@
+/** @file
+  Plik dopowiedzialny za odpowienie wczytywania inputu oraz parsowanie wielomianow.
+
+  @authors Julian Kozłowski <jk417694@students.mimuw.edu.pl>
+  @copyright Uniwersytet Warszawski
+  @date 2021
+*/
+
 #define _GNU_SOURCE
 #include "poly.h"
-#include "Commands.h"
+#include "commands.h"
 #include "inputPoly.h"
 #include "heap.h"
 
@@ -105,7 +113,7 @@ static line ReadLine(){
 static size_t numberOfPolys(line polyToRead, size_t start, size_t end){
     size_t numberOfPolys = 1;
     size_t heap = 0;
-    for(int i = start; i < end; i++){
+    for(size_t i = start; i < end; i++){
         if(polyToRead.letters[i] == '(')heap++;
         if(polyToRead.letters[i] == ')')heap--;
         if(polyToRead.letters[i] == '+' && !heap)numberOfPolys++;
@@ -126,8 +134,8 @@ size_t findIndex(char *l, size_t start, size_t end){
     }
     return 0;
 }
+
 static Mono readSingleMono(line monoToRead, bool *isValid, size_t start, size_t end){
-    size_t monoLength = monoToRead.length;
     size_t startIndex = findIndex(monoToRead.letters, start, end);
     Mono result;
     char *endC;
@@ -155,6 +163,7 @@ static Poly readMonos(line polyToRead, bool *isValid, size_t start, size_t end){
     size_t heap = 0;
     size_t indexOfMono = 0;
     Mono* monosToAdd = malloc(sizeof(Mono) * nPol);
+    CHECK_PTR(monosToAdd);
 
     for(size_t i = start; i <= end; ++i){
         if(polyToRead.letters[i] == '(')heap++;
@@ -172,17 +181,12 @@ static Poly readMonos(line polyToRead, bool *isValid, size_t start, size_t end){
     free(monosToAdd);
     return result;
 }
-
-static void LineUp(line *l){
-    char *s = l -> letters;
-    while(*s){
-        *s = toupper((unsigned char) *s); s++;
-    }
-}
+/**
+  Funkcja wczytująca wszystkie polecenia oraz wielomiany oraz wykonująca owe polecenia.
+*/
 
 void ReadFile(){
     line l = ReadLine();
-    // LineUp(&l);
     size_t numberOfLine = 1;
     Poly p;
     heap *h = NULL;
@@ -208,7 +212,6 @@ void ReadFile(){
         }
         free(l.letters);
         l = ReadLine();
-        //if(l.letters != NULL)LineUp(&l);
         numberOfLine++;
     }
     CleanHeap(h);

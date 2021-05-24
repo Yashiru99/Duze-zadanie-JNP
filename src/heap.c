@@ -1,3 +1,11 @@
+/** @file
+  Plik realizujący funkcje stosowe.
+
+  @author Julian Kozłowski <jk417694@students.mimuw.edu.pl>
+  @copyright Uniwersytet Warszawski
+  @date 2021
+*/
+
 #include "poly.h"
 #include <stdlib.h>
 #include "heap.h"
@@ -21,7 +29,6 @@ void IniHeap(heap **head){
         (*head) -> size = 0;
     }
 }
-// headIndex wskazuje na pierwsze wolne miejsce
 void AddHeap(heap *head, Poly p){
     if(head -> headIndex >= head -> size || head -> heap == NULL){
         ResizePlus(&head);
