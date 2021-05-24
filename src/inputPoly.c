@@ -28,31 +28,63 @@
     }                 \
   } while (0)
 
+/**
+ * Sprawdzenie czy linia jest potencjalnym wielomianem.
+ * @param[in] line : linia
+ * @return czy linia moze być wielomianem?
+ */
 static bool LineIsPoly(line actualLine){
     assert(actualLine.letters != NULL);
     return isdigit(actualLine.letters[0]) || actualLine.letters[0] == '(' || actualLine.letters[0] == '-';
 }
 
+/**
+ * Sprawdzenie czy linia jest potencjalną komendą.
+ * @param[in] line : linia
+ * @return czy linia moze być komendą?
+ */
 static bool LineIsCommand(line actualLine){
     assert(actualLine.letters != NULL && actualLine.length != 0);
     return isalpha(actualLine.letters[0]);
 }
 
+/**
+ * Sprawdzenie czy linia jest pusta, albo jest komentarzem.
+ * @param[in] line : linia
+ * @return czy linia jest pusta lub jest komentarzem?
+ */
 static bool LineIsCommentOrEmpty(line actualLine){
     assert(actualLine.letters != NULL && actualLine.length != 0);
     return actualLine.letters[0] == '#' || actualLine.letters[0] == '\n' || actualLine.letters[0] == EOF;
 }
 
+/**
+ * Sprawdzenie czy litera jest poprawna.
+ * @param[in] char : a
+ * @return czy char moze wystąpić w komendzie lub wielomianie?
+ */
 static bool IsAllowed(char a){
     return isdigit(a) || a == ',' || a == '(' || a == ')' || a == '+' || a == '\n' || a == '-' || a == EOF;
 }
 
 static bool CheckMono(line actualLine, size_t start, size_t end);
 
+/**
+ * Sprawdza czy wykladnik jest w poprawnym zakresie.
+ * @param[in] long : wykladnik
+ * @return czy wykladnik jest w zakresie [0, INT_MAX]?
+ */
 static bool CheckExp(long k){
     return k >= 0 && k <= INT_MAX;
 }
 
+/**
+ * Sprawdza czy wielomian jest poprawny.
+ * @param[in] line : linia
+ * @param[in] start : start
+ * @param[in] end : koniec
+ * @return czy wielomian w linii zaczynający się od start i kończącej na koniec jest poprawny?
+ */
 static bool CheckPoly(line actualLine, size_t start, size_t end){
     if(!IsAllowed(actualLine.letters[0]))return false;
     bool result = true;
@@ -89,6 +121,13 @@ static bool CheckPoly(line actualLine, size_t start, size_t end){
     return result;
 }
 
+/**
+ * Sprawdza czy monomian jest poprawny.
+ * @param[in] line : linia
+ * @param[in] start : start
+ * @param[in] end : koniec
+ * @return czy monomian w linii zaczynający się od start i kończącej na end jest poprawny?
+ */
 static bool CheckMono(line actualLine, size_t start, size_t end){
     bool result = true;
     result &= isdigit(actualLine.letters[end]) != 0 ? 1 : 0;
@@ -102,10 +141,20 @@ static bool CheckMono(line actualLine, size_t start, size_t end){
     return result;
 }
 
+/**
+ * Wypisuje linię w ktorej zauwazylismy niepoprawny wielomian.
+ * @param[in] w : numer linii.
+ */
 static void PolyIsWrong(size_t w){
     fprintf(stderr, "ERROR %ld WRONG POLY\n", w);
 }
 
+/**
+ * Funkcja wczytująca linie, alokuje go w podany bufor i aktualizuje długość.
+ * @param[in] buffor : wskaźnik na wskaźnik na bufor
+ * @param[in] len : wskaźnik na długość.
+ * @return Wczytana linia.
+ */
 static line ReadLine(char **buffor, size_t *len){
     int nRead = 0;
     nRead = getline(buffor, len, stdin);
@@ -114,6 +163,13 @@ static line ReadLine(char **buffor, size_t *len){
     return nRead == -1 ? (line) {.length = 0, .letters = NULL} : (line) {.length = nRead, .letters = *buffor};
 }
 
+/**
+ * Określa ile monomianow zostanie wczytanych.
+ * @param[in] line : linia do wczytania
+ * @param[in] start : start
+ * @param[in] end : koniec
+ * @return ile monomianow musimy wczytac.
+ */
 static size_t numberOfPolys(line polyToRead, size_t start, size_t end){
     size_t numberOfPolys = 1;
     size_t heap = 0;
@@ -125,11 +181,15 @@ static size_t numberOfPolys(line polyToRead, size_t start, size_t end){
     return numberOfPolys;
 }
 
-// nie alokujemy zawartości tablic, tylko całą tablicę linii(chyba zaleznie od strcpy)
-// rozdzielamy sobie na osobne Monos
 static Poly readMonos(line polyToRead, bool *isValid, size_t start, size_t end);
-
-size_t findIndex(char *l, size_t start, size_t end){
+/**
+ * Znajduje indeks na "," ktory rozdziela wielomian w monomianie od wykladnika
+ * @param[in] char[] : litery do wczytania
+ * @param[in] start : start
+ * @param[in] end : koniec
+ * @return czy monomian w linii zaczynający się od start i kończącej na end jest poprawny?
+ */
+static size_t findIndex(char *l, size_t start, size_t end){
     size_t heap = 0;
     for(size_t j = start; j < end; j++){
         if(l[j] == '(')heap++;
@@ -150,8 +210,8 @@ static Mono readSingleMono(line monoToRead, bool *isValid, size_t start, size_t 
     //return (Mono) {.exp = (poly_exp_t) strtol(monoToRead.letters + startIndex, &end, 10), .p = readMonos(MakeSubLine(monoToRead, 1, startIndex - 1))};
     return result;
 }
-// osobny Case dla wielomianów stałych
-bool PolyIsConst(line l, size_t start){
+
+static bool PolyIsConst(line l, size_t start){
     return l.letters[start] != '(';
 }
 
@@ -211,7 +271,7 @@ void ReadFile(){
             }
         }
         else if(LineIsCommand(l)){
-            ReadCommand(l, numberOfLine, h);
+            ReadAndDoCommand(l, numberOfLine, h);
         }
         else if(!LineIsCommentOrEmpty(l)){
             PolyIsWrong(numberOfLine);

@@ -10,12 +10,20 @@
 #include <stdlib.h>
 #include "heap.h"
 
+/**
+ * Realokowanie stosu w celu zwiększenia pamięci.
+ * @param[in] head : wskaźnik na wskaźnik na stos
+ */
 static void ResizePlus(heap **head){
     size_t doubledSize = (*head) -> size * 2;
     (*head) -> size = (*head) -> size == 0 ? 2 : doubledSize;
     (*head) -> heap  = realloc((*head) -> heap, sizeof(Poly) * (*head) -> size);
 }
 
+/**
+ * Realokowanie stosu w celu zmniejszenia pamięci.
+ * @param[in] head : wskaźnik na wskaźnik na stos
+ */
 static void ResizeMinus(heap **head){
     (*head) -> size /= 2;
     (*head) = realloc(*head, sizeof(Poly) * (*head) -> size);
@@ -29,6 +37,7 @@ void IniHeap(heap **head){
         (*head) -> size = 0;
     }
 }
+
 void AddHeap(heap *head, Poly p){
     if(head -> headIndex >= head -> size || head -> heap == NULL){
         ResizePlus(&head);
