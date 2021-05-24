@@ -49,9 +49,16 @@ static bool IsAllowed(char a){
 
 static bool CheckMono(line actualLine, size_t start, size_t end);
 
+static bool CheckExp(long k){
+    return k >= 0 && k <= INT_MAX;
+}
+
 static bool CheckPoly(line actualLine, size_t start, size_t end){
     bool result = true;
     if(isdigit(actualLine.letters[start]) || actualLine.letters[start] == '-'){
+        char *e = NULL;
+        long f = strtol(actualLine.letters + start, &e, 10);
+        if(errno == ERANGE)return false;
         if(actualLine.letters[start] == '-')start++;
         while(start <= end && isdigit(actualLine.letters[start])){
             start++;
@@ -60,7 +67,7 @@ static bool CheckPoly(line actualLine, size_t start, size_t end){
     }
 
     size_t heap = 0;
-    if(actualLine.letters[start] == '('){
+    if(actualLine.letters[start] == '(' && (actualLine.letters[start + 1] == '(' || actualLine.letters[start + 1] == '-' || isdigit(actualLine.letters[start + 1]))){
         heap++;
         for(size_t i = start + 1; i <= end; ++i){
             result &= IsAllowed(actualLine.letters[i]);
@@ -87,6 +94,8 @@ static bool CheckMono(line actualLine, size_t start, size_t end){
     while(start < end && isdigit(actualLine.letters[end])){
         end--;
     }
+    long e = strtol(actualLine.letters, NULL, 10);
+    if(!CheckExp(e))return false;
     result &= actualLine.letters[end] == ',';
     result &= CheckPoly(actualLine, start, end - 1);
     return result;
@@ -94,10 +103,6 @@ static bool CheckMono(line actualLine, size_t start, size_t end){
 
 static void PolyIsWrong(size_t w){
     fprintf(stderr, "ERROR %ld WRONG POLY\n", w);
-}
-
-static bool CheckExp(long k){
-    return k >= 0 && k <= INT_MAX;
 }
 
 static line ReadLine(){
@@ -184,7 +189,6 @@ static Poly readMonos(line polyToRead, bool *isValid, size_t start, size_t end){
 /**
   Funkcja wczytująca wszystkie polecenia oraz wielomiany oraz wykonująca owe polecenia.
 */
-
 void ReadFile(){
     line l = ReadLine();
     size_t numberOfLine = 1;

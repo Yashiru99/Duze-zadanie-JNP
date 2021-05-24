@@ -44,7 +44,7 @@ static void MonoPrint(Mono m){
     printf(",%d)", m.exp);
 }
 
-static void PolyPrint(Poly p){
+void PolyPrint(Poly p){
     if(PolyIsCoeff(&p))printf("%ld", p.coeff);
     else{
         printf("(");
