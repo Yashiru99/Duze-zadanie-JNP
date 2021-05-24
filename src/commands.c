@@ -112,7 +112,11 @@ void ReadCommand(line l, size_t w, heap *h){
         PolyDestroy(&q);
     }
     else if(!strncmp(l.letters, "DEG_BY", 6)){
-        if(l.letters[6] != ' ' || !isdigit(l.letters[7])){
+        if(l.letters[6] != ' ' && !isspace(l.letters[6])){
+            fprintf(stderr, "ERROR %ld WRONG COMMAND\n", w);
+            return;
+        }
+        else if(!isdigit(l.letters[7])){
             fprintf(stderr, "ERROR %ld DEG BY WRONG VARIABLE\n", w);
             return;
         }
@@ -134,7 +138,11 @@ void ReadCommand(line l, size_t w, heap *h){
         printf("%d\n", PolyDeg(&h -> heap[h -> headIndex - 1]));
     }
     else if(!strncmp(l.letters, "AT", 2)){
-        if(l.letters[2] != ' ' || (!isdigit(l.letters[3]) && l.letters[3] != '-')){
+        if(l.letters[2] != ' ' && !isspace(l.letters[6])){
+            fprintf(stderr,"ERROR %ld WRONG COMMAND\n", w);
+            return;
+        }
+        else if(!isdigit(l.letters[3]) && l.letters[3] != '-'){
             fprintf(stderr,"ERROR %ld AT WRONG VALUE\n", w);
             return;
         }

@@ -44,7 +44,7 @@ static bool LineIsCommentOrEmpty(line actualLine){
 }
 
 static bool IsAllowed(char a){
-    return isdigit(a) || a == '\0' || a == ',' || a == '(' || a == ')' || a == '+' || a == '\0' || a == '\n' || a == '-' || a == EOF;
+    return isdigit(a) || a == ',' || a == '(' || a == ')' || a == '+' || a == '\n' || a == '-' || a == EOF;
 }
 
 static bool CheckMono(line actualLine, size_t start, size_t end);
@@ -54,10 +54,11 @@ static bool CheckExp(long k){
 }
 
 static bool CheckPoly(line actualLine, size_t start, size_t end){
+    if(!IsAllowed(actualLine.letters[0]))return false;
     bool result = true;
     if(isdigit(actualLine.letters[start]) || actualLine.letters[start] == '-'){
         char *e = NULL;
-        long f = strtol(actualLine.letters + start, &e, 10);
+        strtol(actualLine.letters + start, &e, 10);
         if(errno == ERANGE)return false;
         if(actualLine.letters[start] == '-')start++;
         while(start <= end && isdigit(actualLine.letters[start])){
@@ -105,14 +106,12 @@ static void PolyIsWrong(size_t w){
     fprintf(stderr, "ERROR %ld WRONG POLY\n", w);
 }
 
-static line ReadLine(){
-    char *buffor = NULL;
-    size_t length = 0;
+static line ReadLine(char **buffor, size_t *len){
     int nRead = 0;
-    nRead = getline(&buffor, &length, stdin);
-    CHECK_PTR(buffor);
-    if(nRead == -1) free(buffor);
-    return nRead == -1 ? (line) {.length = 0, .letters = NULL} : (line) {.length = nRead, .letters = buffor};
+    nRead = getline(buffor, len, stdin);
+    *len = nRead + 1;
+    CHECK_PTR(*buffor);
+    return nRead == -1 ? (line) {.length = 0, .letters = NULL} : (line) {.length = nRead, .letters = *buffor};
 }
 
 static size_t numberOfPolys(line polyToRead, size_t start, size_t end){
@@ -189,8 +188,11 @@ static Poly readMonos(line polyToRead, bool *isValid, size_t start, size_t end){
 /**
   Funkcja wczytująca wszystkie polecenia oraz wielomiany oraz wykonująca owe polecenia.
 */
+
 void ReadFile(){
-    line l = ReadLine();
+    char *buffor = NULL;
+    size_t len = 0;
+    line l = ReadLine(&buffor, &len);
     size_t numberOfLine = 1;
     Poly p;
     heap *h = NULL;
@@ -214,11 +216,11 @@ void ReadFile(){
         else if(!LineIsCommentOrEmpty(l)){
             PolyIsWrong(numberOfLine);
         }
-        free(l.letters);
-        l = ReadLine();
+        l = ReadLine(&buffor, &len);
         numberOfLine++;
     }
     CleanHeap(h);
     free(h -> heap);
     free(h);
+    free(buffor);
 }
