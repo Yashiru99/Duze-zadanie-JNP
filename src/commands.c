@@ -146,16 +146,12 @@ void ReadAndDoCommand(line l, size_t w, heap *h){
 
     else if(!strncmp(l.letters, "DEG_BY", 6)){
         if(isalpha(l.letters[6])){
-            fprintf(stderr, "coERROR %ld WRONG COMMAND\n", w);
+            fprintf(stderr,"ERROR %ld WRONG COMMAND\n", w);
             return;
         }
-        if(l.letters[6] != ' '){
-            fprintf(stderr, "ERROR %ld DEG BY WRONG VARIABLE\n", w);
-            return;
-        }
-        if(l.letters[6] == ' ' && !isdigit(l.letters[7])){
-            fprintf(stderr, "ERROR %ld DEG BY WRONG VARIABLE\n", w);
-            return;
+        if(l.letters[6] != ' ' || !isdigit(l.letters[7])){
+              fprintf(stderr, "ERROR %ld DEG BY WRONG VARIABLE\n", w);
+              return;
         }
         char *end;
         size_t deg = strtoul(l.letters + 6, &end, 10);
@@ -181,13 +177,9 @@ void ReadAndDoCommand(line l, size_t w, heap *h){
             fprintf(stderr,"ERROR %ld WRONG COMMAND\n", w);
             return;
         }
-        else if(l.letters[2] != ' '){
-            fprintf(stderr,"ERROR %ld AT WRONG VALUE\n", w);
-            return;
-        }
-        else if(!isdigit(l.letters[3])){
-            fprintf(stderr, "ERROR %ld AT WRONG VALUE\n", w);
-            return;
+        if(l.letters[2] != ' ' || !isdigit(l.letters[3])){
+              fprintf(stderr, "ERROR %ld AT WRONG VALUE\n", w);
+              return;
         }
         char *end;
         long deg = strtoll(l.letters + 2, &end, 10);
