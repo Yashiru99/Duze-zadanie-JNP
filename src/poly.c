@@ -222,7 +222,6 @@ Poly PolyCloneMonos(size_t count, const Mono monos[]){
 
     return (Poly) {.size = realCount, .arr = copied};
 }
-
 Poly PolyClone(const Poly *p) {
     if (PolyIsCoeff(p)) {
         return PolyFromCoeff(p -> coeff);
@@ -459,5 +458,39 @@ Poly PolyAt(const Poly *p, poly_coeff_t x) {
     for(size_t i = 0; i < p -> size - 1; ++i) PolyDestroy(&polyToAdd[i]);
     free(polyToAdd);
     return result;
+}
 
+Poly ExponentiatePoly(Poly p, size_t exp){
+    Poly result = p;
+    for(size_t i = 0; i < exp - 1; i++){
+        // TODO: tutaj gubię pamięc
+        result = MultiplyPolyByPoly(&p, &result);
+    }
+    return result;
+}
+
+static size_t Minimum(size_t k, size_t l){
+    return k < l ? k : l;
+}
+
+static Poly ComposeMonoAndPoly(Poly p, Mono m){
+    Poly exp = ExponentiatePoly(p, m.exp);
+    return PolyMul(&exp, &m.p);
+}
+
+Poly PolyCompose(const Poly *p, size_t k, const Poly q[]){
+    if(PolyIsCoeff(p)) return *p;
+    Poly result = PolyClone(p);
+    size_t l = p -> size; // ilość zmiennej p
+    // musimy jeszcze zrobic kopię wielomianu
+    size_t boundary = Minimum(k,l) - 1;
+    for(size_t i = 0; i < l; i++){
+        if(i <= boundary){
+            ComposeMonoAndPoly(q[i], result.arr[i]);
+        }
+        else{
+            ComposeMonoAndPoly(PolyZero(), result.arr[i]);
+        }
+    }
+    return result;
 }

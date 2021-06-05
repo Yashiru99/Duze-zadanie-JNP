@@ -243,4 +243,15 @@ bool PolyIsEq(const Poly *p, const Poly *q);
  * @return @f$p(x, x_0, x_1, \ldots)@f$
  */
 Poly PolyAt(const Poly *p, poly_coeff_t x);
+/**
+ *
+ * @param p
+ * @param k
+ * @param q
+ * @return
+ */
+Poly PolyCompose(const Poly *p, size_t k, const Poly q[]);
+
+// TEMP
+Poly ExponentiatePoly(Poly p, size_t exp);
 #endif /* __POLY_H__ */

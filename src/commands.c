@@ -217,6 +217,13 @@ void ReadAndDoCommand(line l, size_t w, heap *h){
         PolyDestroy(&p);
     }
 
+    else if(!strncmp(l.letters, "COMPOSE", 7)){
+        size_t k = strtoll(l.letters + 7, NULL, 10);
+        Poly p = PopHeap(h);
+        Poly q[k]; // nasza tablica wielomianów
+        for(size_t i = 0; i < k; i++)q[i] = PopHeap(h);
+        PolyCompose(&p, k, q);
+    }
     else{
         fprintf(stderr,"ERROR %ld WRONG COMMAND\n", w);
     }

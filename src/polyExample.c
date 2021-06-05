@@ -4,6 +4,7 @@
 
 #include "poly.h"
 #include "inputPoly.h"
+#include "commands.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -312,15 +313,8 @@ static bool OverflowTest(void) {
     return res;
 }
 int main(){
-    Mono *monos = calloc(2, sizeof (Mono));
-    assert(monos);
-    monos[0] = M(P(C(-1), 1), 1);
-    monos[1] = M(P(C(1), 1), 2);
-    Poly p1 = PolyCloneMonos(2, monos);
-    Poly p2 = PolyCloneMonos(2, monos);
-    PolyDestroy(&p1);
-    PolyDestroy(&p2);
-    MonoDestroy(monos + 0);
-    MonoDestroy(monos + 1);
-    free(monos);
+    Poly test = P(C(1), 2);
+    Poly test2 = P(C(1), 3);
+    Poly res = PolyCompose(&test2, 1, &test);
+    PolyPrint(res);
 }
