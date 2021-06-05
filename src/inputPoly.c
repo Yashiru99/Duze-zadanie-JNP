@@ -101,8 +101,8 @@ static bool CheckPoly(line actualLine, size_t start, size_t end){
         }
         return start >= end;
     }
-
     size_t heap = 0;
+    if(actualLine.letters[start] == '(' && !(actualLine.letters[start + 1] == '(' || actualLine.letters[start + 1] == '-' || isdigit(actualLine.letters[start + 1])))return false;
     if(actualLine.letters[start] == '(' && (actualLine.letters[start + 1] == '(' || actualLine.letters[start + 1] == '-' || isdigit(actualLine.letters[start + 1]))){
         heap++;
         for(size_t i = start + 1; i <= end; ++i){
@@ -111,6 +111,7 @@ static bool CheckPoly(line actualLine, size_t start, size_t end){
             if(actualLine.letters[i] == ')')heap--;
             if(heap == 0){
                 result &= (actualLine.letters[i+1] == '+' || actualLine.letters[i+1] == '\n' || actualLine.letters[i+1] == EOF || actualLine.letters[i+1] == ',');
+                if(actualLine.letters[i+1] == '+')result &= actualLine.letters[i+2] == '(';
                 result &= CheckMono(actualLine, start + 1, i - 1);
                 if(actualLine.letters[i+1] == '+'){
                     i++;

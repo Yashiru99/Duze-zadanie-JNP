@@ -312,9 +312,4 @@ static bool OverflowTest(void) {
     res &= TestAt(P(P(C(1), 1), 64), 2, C(0));
     return res;
 }
-int main(){
-    Poly test = P(C(1), 2);
-    Poly test2 = P(C(1), 3);
-    Poly res = PolyCompose(&test2, 1, &test);
-    PolyPrint(res);
-}
+

@@ -177,7 +177,7 @@ void ReadAndDoCommand(line l, size_t w, heap *h){
             fprintf(stderr,"ERROR %ld WRONG COMMAND\n", w);
             return;
         }
-        if(l.letters[2] != ' ' || !isdigit(l.letters[3])){
+        if(l.letters[2] != ' ' || (!isdigit(l.letters[3]) && l.letters[3] != '-')){
               fprintf(stderr, "ERROR %ld AT WRONG VALUE\n", w);
               return;
         }
@@ -222,7 +222,7 @@ void ReadAndDoCommand(line l, size_t w, heap *h){
         Poly p = PopHeap(h);
         Poly q[k]; // nasza tablica wielomianów
         for(size_t i = 0; i < k; i++)q[i] = PopHeap(h);
-        PolyCompose(&p, k, q);
+        AddHeap(h, PolyCompose(&p, k, q));
     }
     else{
         fprintf(stderr,"ERROR %ld WRONG COMMAND\n", w);
