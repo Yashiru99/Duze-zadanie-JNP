@@ -163,7 +163,7 @@ static Mono *Simplify(Mono *arr, const size_t count, size_t *realCount) {
 }
 
 Poly PolyAddMonos(size_t count, const Mono monos[]) {
-    if(count == 0) return (Poly) {.coeff = 0, .arr = NULL};
+    if(count == 0) return PolyZero();
 
     Mono *CopyOfMonos = malloc(count * sizeof(Mono));
     CHECK_PTR(CopyOfMonos);
@@ -175,14 +175,52 @@ Poly PolyAddMonos(size_t count, const Mono monos[]) {
 
     if(realCount == 0) {
         free(CopyOfMonos);
-        return (Poly) {.size = 0, .arr = NULL};
+        return PolyZero();
     }
+
     if(realCount == 1 && MonoGetExp(&CopyOfMonos[0]) == 0 && PolyIsCoeff(&CopyOfMonos[0].p)){
         Poly res = PolyFromCoeff(CopyOfMonos[0].p.coeff);
         free(CopyOfMonos);
         return res;
     }
     return (Poly) {.size = realCount, .arr = CopyOfMonos};
+}
+
+Poly PolyOwnMonos(size_t count, Mono *monos){
+    if(count == 0 || monos == NULL) return PolyZero();
+
+    SortMonoArray(monos, count);
+    size_t realCount = 0;
+    Simplify(monos, count, &realCount);
+
+    if(realCount == 0) PolyZero();
+
+    if(realCount == 1 && MonoGetExp(&monos[0]) == 0 && PolyIsCoeff(&monos[0].p))return PolyFromCoeff(monos[0].p.coeff);
+
+    return (Poly) {.size = realCount, .arr = monos};
+}
+
+static Mono* MakeDeepCopy(size_t count, const Mono monos[]){
+    Mono *deepCopy = malloc(sizeof(Mono) * count);
+    CHECK_PTR(deepCopy);
+    for(size_t i = 0; i < count; i++)deepCopy[i] = MonoClone(&monos[i]);
+    return deepCopy;
+}
+
+Poly PolyCloneMonos(size_t count, const Mono monos[]){
+    if(count == 0 || monos == NULL) return PolyZero();
+
+    Mono* copied = MakeDeepCopy(count, monos);
+
+    SortMonoArray(copied, count);
+    size_t realCount = 0;
+    Simplify(copied, count, &realCount);
+
+    if(realCount == 0)return PolyZero();
+
+    if(realCount == 1 && MonoGetExp(&copied[0]) == 0 && PolyIsCoeff(&copied[0].p))return PolyFromCoeff(copied[0].p.coeff);
+
+    return (Poly) {.size = realCount, .arr = copied};
 }
 
 Poly PolyClone(const Poly *p) {

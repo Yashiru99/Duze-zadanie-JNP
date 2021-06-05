@@ -311,3 +311,16 @@ static bool OverflowTest(void) {
     res &= TestAt(P(P(C(1), 1), 64), 2, C(0));
     return res;
 }
+int main(){
+    Mono *monos = calloc(2, sizeof (Mono));
+    assert(monos);
+    monos[0] = M(P(C(-1), 1), 1);
+    monos[1] = M(P(C(1), 1), 2);
+    Poly p1 = PolyCloneMonos(2, monos);
+    Poly p2 = PolyCloneMonos(2, monos);
+    PolyDestroy(&p1);
+    PolyDestroy(&p2);
+    MonoDestroy(monos + 0);
+    MonoDestroy(monos + 1);
+    free(monos);
+}
