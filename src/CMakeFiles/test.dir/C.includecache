@@ -1,0 +1,46 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/students/mat/j/jk417694/IPP-jk417694/src/commands.h
+input_poly.h
+/home/students/mat/j/jk417694/IPP-jk417694/src/input_poly.h
+heap.h
+/home/students/mat/j/jk417694/IPP-jk417694/src/heap.h
+
+/home/students/mat/j/jk417694/IPP-jk417694/src/heap.h
+poly.h
+/home/students/mat/j/jk417694/IPP-jk417694/src/poly.h
+
+/home/students/mat/j/jk417694/IPP-jk417694/src/input_poly.h
+stdio.h
+-
+
+/home/students/mat/j/jk417694/IPP-jk417694/src/poly.h
+assert.h
+-
+stdbool.h
+-
+stddef.h
+-
+
+/home/students/mat/j/jk417694/IPP-jk417694/src/poly_test.c
+poly.h
+/home/students/mat/j/jk417694/IPP-jk417694/src/poly.h
+input_poly.h
+/home/students/mat/j/jk417694/IPP-jk417694/src/input_poly.h
+commands.h
+/home/students/mat/j/jk417694/IPP-jk417694/src/commands.h
+assert.h
+-
+stdio.h
+-
+stdarg.h
+-
+stdlib.h
+-
+
