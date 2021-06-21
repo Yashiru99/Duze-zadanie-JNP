@@ -313,7 +313,3 @@ static bool OverflowTest(void) {
     return res;
 }
 
-void main() {
-    ReadFile();
-}
-

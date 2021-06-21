@@ -518,6 +518,7 @@ Poly PolyCompose(const Poly *p, size_t k, const Poly q[]){
     }
 
     Poly res = PolyZero();
+    Poly realResult = PolyZero();
 
     for(size_t i = 0; i < p->size; i++){
         Poly coeff = PolyCompose(&p->arr[i].p, k-1, q+1);
@@ -525,7 +526,9 @@ Poly PolyCompose(const Poly *p, size_t k, const Poly q[]){
         Poly mul = PolyMul(&exp, &coeff);
 
         PolyDestroy(&coeff);
-        res = PolyAdd(&res, &mul);
+        realResult = PolyAdd(&res, &mul);
+        PolyDestroy(&res);
+        res = realResult;
         PolyDestroy(&exp);
         PolyDestroy(&mul);
     }

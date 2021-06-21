@@ -57,6 +57,14 @@ bool HeapIsEmpty(heap *head);
 bool HeapHasAtleastTwo(heap *head);
 
 /**
+ * Funcja określająca czy na stosie jest więcej niz k wielomianow.
+ * @param[in] head : wkaźnik na wskaźnik na stos
+ * @param[in] k : ilosc wielomianow
+ * @return czy na stosie jest conajmniej k wielomianow?
+ */
+bool HeapHasAtleastKElements(heap *head, size_t k);
+
+/**
  * Funkcja czyszcząca zawartosc stosu.
  * @param[in] head : wkaźnik na wskaźnik na stos
  */

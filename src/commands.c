@@ -44,6 +44,9 @@ static bool isEmpty(heap *h, size_t numberOfLine){
     return false;
 }
 
+static bool isAscii(char c){
+    return c >= 0 && c <= 126;
+}
 /**
  * Zwraca wartość bool w zaleznosci od tego czy na stosie są 2 wielomiany, w przypadku błędu wypisuje ze jest
  * niedobor wielomianow.
@@ -218,11 +221,34 @@ void ReadAndDoCommand(line l, size_t w, heap *h){
     }
 
     else if(!strncmp(l.letters, "COMPOSE", 7)){
-        size_t k = strtoll(l.letters + 7, NULL, 10);
+        if(isalpha(l.letters[7])){
+            fprintf(stderr,"ERROR %ld WRONG COMMAND\n", w);
+            return;
+        }
+        if(l.letters[7] != ' ' || !isdigit(l.letters[8])){
+              fprintf(stderr, "ERROR %ld COMPOSE WRONG PARAMETER\n", w);
+              return;
+        }
+        char *end;
+        size_t k = strtoul(l.letters + 7, &end, 10);
+        if(errno == ERANGE){
+            fprintf(stderr, "ERROR %ld COMPOSE WRONG PARAMETER\n", w);
+            return;
+        }
+        if((*end != '\n' && *end != EOF && *end != '\0')){
+            fprintf(stderr, "ERROR %ld COMPOSE WRONG PARAMETER\n", w);
+            return;
+        }
+        if(!HeapHasAtleastKElements(h, k + 1)){
+            fprintf(stderr, "ERROR %ld STACK UNDERFLOW\n", w);
+            return;
+        }
         Poly p = PopHeap(h);
-        Poly q[k]; // nasza tablica wielomianów
+        Poly q[k];
         for(size_t i = 0; i < k; i++)q[k - i - 1] = PopHeap(h);
         AddHeap(h, PolyCompose(&p, k, q));
+        PolyDestroy(&p);
+        for(size_t i = 0; i < k; i++)PolyDestroy(&q[i]);
     }
     else{
         fprintf(stderr,"ERROR %ld WRONG COMMAND\n", w);

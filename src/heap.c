@@ -69,3 +69,7 @@ bool HeapIsEmpty(heap *head){
 bool HeapHasAtleastTwo(heap *head){
     return head -> headIndex > 1;
 }
+
+bool HeapHasAtleastKElements(heap *head, size_t k){
+    return head -> headIndex > k - 1;
+}
