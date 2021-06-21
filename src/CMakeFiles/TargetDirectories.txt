@@ -1,5 +1,0 @@
-/home/students/mat/j/jk417694/IPP-jk417694/src/CMakeFiles/rebuild_cache.dir
-/home/students/mat/j/jk417694/IPP-jk417694/src/CMakeFiles/edit_cache.dir
-/home/students/mat/j/jk417694/IPP-jk417694/src/CMakeFiles/doc.dir
-/home/students/mat/j/jk417694/IPP-jk417694/src/CMakeFiles/poly.dir
-/home/students/mat/j/jk417694/IPP-jk417694/src/CMakeFiles/test.dir

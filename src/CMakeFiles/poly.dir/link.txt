@@ -1,1 +1,0 @@
-/usr/bin/cc -std=c11 -O2 -Wextra -Wall -O3 -DNDEBUG  -rdynamic CMakeFiles/poly.dir/poly.c.o CMakeFiles/poly.dir/calc.c.o CMakeFiles/poly.dir/input_poly.c.o CMakeFiles/poly.dir/commands.c.o CMakeFiles/poly.dir/heap.c.o  -o poly 
