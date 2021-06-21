@@ -43,8 +43,8 @@ set(SOURCE_FILES_TEST
     src/heap.h)
 
 # Wskazujemy plik wykonywalny.
-add_executable(poly ${SOURCE_FILES})
-add_executable(test EXCLUDE_FROM_ALL ${TEST_SOURCE_FILES} src/poly_test.c)
+add_executable(poly ${SOURCE_FILES} src/calc.c)
+add_executable(test ${TEST_SOURCE_FILES} src/poly_test.c)
 
 set_target_properties(test PROPERTIES OUTPUT_NAME poly_test)
 
