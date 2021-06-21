@@ -313,3 +313,15 @@ static bool OverflowTest(void) {
     return res;
 }
 
+int main(){
+    assert(OverflowTest);
+    assert(SimpleAtTest);
+    assert(SimpleIsEqTest);
+    assert(SimpleDegTest);
+    assert(SimpleDegByTest);
+    assert(SimpleAddTest);
+    assert(SimpleSubTest);
+    assert(SimpleNegTest);
+    assert(SimpleMulTest);
+    assert(SimpleAddMonosTest);
+}

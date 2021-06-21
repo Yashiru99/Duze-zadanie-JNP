@@ -36,7 +36,7 @@ static bool WrongCommand(line l, size_t index, size_t numberOfLines){
  * @param[in] numberOfLine : numer tablicy
  * @return bool
  */
-static bool isEmpty(heap *h, size_t numberOfLine){
+static bool IsEmpty(heap *h, size_t numberOfLine){
     if(HeapIsEmpty(h)){
         fprintf(stderr, "ERROR %ld STACK UNDERFLOW\n", numberOfLine);
         return true;
@@ -44,9 +44,6 @@ static bool isEmpty(heap *h, size_t numberOfLine){
     return false;
 }
 
-static bool isAscii(char c){
-    return c >= 0 && c <= 126;
-}
 /**
  * Zwraca wartość bool w zaleznosci od tego czy na stosie są 2 wielomiany, w przypadku błędu wypisuje ze jest
  * niedobor wielomianow.
@@ -87,7 +84,7 @@ void PolyPrint(Poly p){
 void ReadAndDoCommand(line l, size_t w, heap *h){  
 
     if(!strncmp(l.letters, "ZERO", 4)){
-        if(WrongCommand(l, 4, w) || isEmpty(h, w)){
+        if(WrongCommand(l, 4, w) || IsEmpty(h, w)){
             return;
         }
         AddHeap(h, PolyZero());
@@ -99,21 +96,21 @@ void ReadAndDoCommand(line l, size_t w, heap *h){
     }
 
     else if(!strncmp(l.letters, "IS_COEFF", 8)){
-        if(WrongCommand(l, 8, w) || isEmpty(h, w)){
+        if(WrongCommand(l, 8, w) || IsEmpty(h, w)){
             return;
         }
         printf("%d\n", PolyIsCoeff(&h -> heap[h -> headIndex - 1]));
     }
 
     else if(!strncmp(l.letters, "IS_ZERO", 7)){
-        if(WrongCommand(l, 7, w) || isEmpty(h, w)){
+        if(WrongCommand(l, 7, w) || IsEmpty(h, w)){
             return;
         }
         printf("%d\n", PolyIsZero(&h -> heap[h -> headIndex - 1]));
     }
 
     else if(!strncmp(l.letters, "CLONE", 5)){
-        if(WrongCommand(l, 5, w) || isEmpty(h, w))return;
+        if(WrongCommand(l, 5, w) || IsEmpty(h, w))return;
         AddHeap(h, PolyClone(&h -> heap[h -> headIndex - 1]));
     }
 
@@ -162,7 +159,7 @@ void ReadAndDoCommand(line l, size_t w, heap *h){
             fprintf(stderr, "ERROR %ld DEG BY WRONG VARIABLE\n", w);
             return;
         }
-        if(isEmpty(h, w))return;
+        if(IsEmpty(h, w))return;
         if((*end != '\n' && *end != EOF)){
             fprintf(stderr, "ERROR %ld DEG BY WRONG VARIABLE\n", w);
             return;
@@ -171,7 +168,7 @@ void ReadAndDoCommand(line l, size_t w, heap *h){
     }
 
     else if(!strncmp(l.letters, "DEG", 3)){
-        if(WrongCommand(l, 3, w) || isEmpty(h, w))return;
+        if(WrongCommand(l, 3, w) || IsEmpty(h, w))return;
         printf("%d\n", PolyDeg(&h -> heap[h -> headIndex - 1]));
     }
 
@@ -190,7 +187,7 @@ void ReadAndDoCommand(line l, size_t w, heap *h){
             fprintf(stderr,"ERROR %ld AT WRONG VALUE\n", w);
             return;
         }
-        if(isEmpty(h, w))return;
+        if(IsEmpty(h, w))return;
         if((*end != '\n' && *end != EOF)){
             fprintf(stderr, "ERROR %ld AT WRONG VALUE\n", w);
             return;
@@ -202,19 +199,19 @@ void ReadAndDoCommand(line l, size_t w, heap *h){
     }
 
     else if(!strncmp(l.letters, "PRINT", 5)){
-        if(WrongCommand(l, 5, w) || isEmpty(h, w))return;
+        if(WrongCommand(l, 5, w) || IsEmpty(h, w))return;
         PolyPrint(h -> heap[h -> headIndex - 1]);
         putchar('\n');
     }
 
     else if(!strncmp(l.letters, "POP", 3)){
-        if(WrongCommand(l, 3, w) || isEmpty(h, w))return;
+        if(WrongCommand(l, 3, w) || IsEmpty(h, w))return;
         Poly p = PopHeap(h);
         PolyDestroy(&p);
     }
 
     else if(!strncmp(l.letters, "NEG", 3)){
-        if(WrongCommand(l, 3, w) || isEmpty(h, w))return;
+        if(WrongCommand(l, 3, w) || IsEmpty(h, w))return;
         Poly p = PopHeap(h);
         AddHeap(h, PolyNeg(&p));
         PolyDestroy(&p);

@@ -31,8 +31,22 @@ set(SOURCE_FILES
     src/heap.c
     src/heap.h)
 
+set(SOURCE_FILES_TEST
+    src/poly.c
+    src/poly.h
+    src/polyExample.c
+    src/inputPoly.c
+    src/inputPoly.h
+    src/commands.c
+    src/commands.h
+    src/heap.c
+    src/heap.h)
+
 # Wskazujemy plik wykonywalny.
 add_executable(poly ${SOURCE_FILES})
+add_executable(test EXCLUDE_FROM_ALL ${SOURCE_FILES_TEST})
+
+set_target_properties(test PROPERTIES OUTPUT_NAME poly_test)
 
 # Dodajemy obsługę Doxygena: sprawdzamy, czy jest zainstalowany i jeśli tak to:
 find_package(Doxygen)
