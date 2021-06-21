@@ -11,7 +11,7 @@
 
 #include "poly.h"
 #include "commands.h"
-#include "inputPoly.h"
+#include "input_poly.h"
 #include "heap.h"
 
 #include <math.h>
@@ -174,7 +174,7 @@ static line ReadLine(char **buffor, size_t *len){
  * @param[in] end : koniec
  * @return ile monomianow musimy wczytac.
  */
-static size_t numberOfPolys(line polyToRead, size_t start, size_t end){
+static size_t NumberOfPolys(line polyToRead, size_t start, size_t end){
     size_t numberOfPolys = 1;
     size_t heap = 0;
     for(size_t i = start; i < end; i++){
@@ -185,7 +185,7 @@ static size_t numberOfPolys(line polyToRead, size_t start, size_t end){
     return numberOfPolys;
 }
 
-static Poly readMonos(line polyToRead, bool *isValid, size_t start, size_t end);
+static Poly ReadMonos(line polyToRead, bool *isValid, size_t start, size_t end);
 /**
  * Znajduje indeks na "," ktory rozdziela wielomian w monomianie od wykladnika
  * @param[in] l : tablica liter do wczytania
@@ -211,14 +211,14 @@ static size_t findIndex(char *l, size_t start, size_t end){
  * @param[in] end : koniec linii
  * @return odczytany monomian
  */
-static Mono readSingleMono(line monoToRead, bool *isValid, size_t start, size_t end){
+static Mono ReadSingleMono(line monoToRead, bool *isValid, size_t start, size_t end){
     size_t startIndex = findIndex(monoToRead.letters, start, end);
     Mono result;
     char *endC;
     long e = strtol(monoToRead.letters + startIndex + 1, &endC, 10);
     if(*endC != ')' || !CheckExp(e))*isValid = false;
     result.exp = e;
-    result.p = readMonos(monoToRead, isValid, start + 1, startIndex - 1);
+    result.p = ReadMonos(monoToRead, isValid, start + 1, startIndex - 1);
     return result;
 }
 
@@ -240,14 +240,14 @@ static bool PolyIsConst(line l, size_t start){
  * @param[in] end : koniec linii
  * @return wielomian
  */
-static Poly readMonos(line polyToRead, bool *isValid, size_t start, size_t end){
+static Poly ReadMonos(line polyToRead, bool *isValid, size_t start, size_t end){
     if(PolyIsConst(polyToRead, start)){
         char *endC;
         long e = strtol(polyToRead.letters + start, &endC, 10);
         if((*endC != '\n' && *endC != EOF && *endC != '\0' && *endC != ',') || errno == ERANGE)*isValid = false;
         return PolyFromCoeff(e);
     }
-    size_t nPol = numberOfPolys(polyToRead, start, end);
+    size_t nPol = NumberOfPolys(polyToRead, start, end);
     size_t usedMonos = nPol;
     size_t heap = 0;
     size_t indexOfMono = 0;
@@ -258,7 +258,7 @@ static Poly readMonos(line polyToRead, bool *isValid, size_t start, size_t end){
         if(polyToRead.letters[i] == '(')heap++;
         if(polyToRead.letters[i] == ')')heap--;
         if(heap == 0){
-            monosToAdd[indexOfMono] = readSingleMono(polyToRead, isValid, start, i);
+            monosToAdd[indexOfMono] = ReadSingleMono(polyToRead, isValid, start, i);
             if(polyToRead.letters[i+1] == '+')i++;
             start = i + 1;
             usedMonos--;
@@ -285,7 +285,7 @@ void ReadFile(){
     while(l.letters != NULL){
         if(LineIsPoly(l) && CheckPoly(l, 0, l.length - 2)){
             isValid = true;
-            p = readMonos(l, &isValid, 0, l.length - 2);
+            p = ReadMonos(l, &isValid, 0, l.length - 2);
             if(!isValid){
                 PolyDestroy(&p);
                 PolyIsWrong(numberOfLine);

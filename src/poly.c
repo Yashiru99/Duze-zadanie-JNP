@@ -1,5 +1,5 @@
 /** @file
-  Interfejs pomocniczych funkcji wykorzystywanych przy implementacji funkcji na wielomianach rzadkich.
+  Implementacja funkcji działających na wielomianach rzadkich.
 
   @authors Julian Kozłowski <jk417694@students.mimuw.edu.pl>
   @copyright Uniwersytet Warszawski

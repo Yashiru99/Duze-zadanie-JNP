@@ -3,7 +3,7 @@
 #endif
 
 #include "poly.h"
-#include "inputPoly.h"
+#include "input_poly.h"
 #include "commands.h"
 #include <assert.h>
 #include <stdio.h>
@@ -36,6 +36,7 @@ static Poly MakePolyHelper(poly_exp_t dummy, ...) {
     va_start(list, dummy);
     Mono *arr = calloc(count, sizeof (Mono));
     CHECK_PTR(arr);
+    
     for (size_t i = 0; i < count; ++i) {
         Poly p = va_arg(list, Poly);
         arr[i] = MonoFromPoly(&p, va_arg(list, poly_exp_t));

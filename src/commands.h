@@ -8,7 +8,7 @@
 
 #ifndef POLY_COMMANDS_H
 #define POLY_COMMANDS_H
-#include "inputPoly.h"
+#include "input_poly.h"
 #include "heap.h"
 /**
  * Funkcja wczytująca i wykonująca komendę.

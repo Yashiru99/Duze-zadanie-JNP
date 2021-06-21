@@ -10,6 +10,14 @@
 #include <stdlib.h>
 #include "heap.h"
 
+#define CHECK_PTR(p)  \
+  do {                \
+    if (p == NULL) {  \
+      exit(1);        \
+    }                 \
+  } while (0)
+
+
 /**
  * Realokowanie stosu w celu zwiększenia pamięci.
  * @param[in] head : wskaźnik na wskaźnik na stos
@@ -18,6 +26,7 @@ static void ResizePlus(heap **head){
     size_t doubledSize = (*head) -> size * 2;
     (*head) -> size = (*head) -> size == 0 ? 2 : doubledSize;
     (*head) -> heap  = realloc((*head) -> heap, sizeof(Poly) * (*head) -> size);
+    CHECK_PTR((*head) -> heap);
 }
 
 /**
@@ -27,11 +36,13 @@ static void ResizePlus(heap **head){
 static void ResizeMinus(heap **head){
     (*head) -> size /= 2;
     (*head) = realloc(*head, sizeof(Poly) * (*head) -> size);
+    CHECK_PTR(*head);
 }
 
 void IniHeap(heap **head){
     if((*head) == NULL){
         (*head) = malloc(sizeof(heap));
+        CHECK_PTR(*head);
         (*head) -> heap = NULL;
         (*head) -> headIndex = 0;
         (*head) -> size = 0;

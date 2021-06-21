@@ -24,8 +24,8 @@ set(SOURCE_FILES
     src/poly.c
     src/poly.h
     src/calc.c
-    src/inputPoly.c
-    src/inputPoly.h
+    src/input_poly.c
+    src/input_poly.h
     src/commands.c
     src/commands.h
     src/heap.c
@@ -34,9 +34,9 @@ set(SOURCE_FILES
 set(SOURCE_FILES_TEST
     src/poly.c
     src/poly.h
-    src/polyExample.c
-    src/inputPoly.c
-    src/inputPoly.h
+    src/poly_example.c
+    src/input_poly.c
+    src/input_poly.h
     src/commands.c
     src/commands.h
     src/heap.c
@@ -44,9 +44,9 @@ set(SOURCE_FILES_TEST
 
 # Wskazujemy plik wykonywalny.
 add_executable(poly ${SOURCE_FILES})
-add_executable(test EXCLUDE_FROM_ALL ${SOURCE_FILES_TEST})
+add_executable(test ${SOURCE_FILES_TEST})
 
-set_target_properties(test PROPERTIES OUTPUT_NAME poly_test)
+add_test(poly_test poly_test)
 
 # Dodajemy obsługę Doxygena: sprawdzamy, czy jest zainstalowany i jeśli tak to:
 find_package(Doxygen)

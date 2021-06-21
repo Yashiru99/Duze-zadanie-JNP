@@ -7,7 +7,7 @@
 */
 
 #include "commands.h"
-#include "inputPoly.h"
+#include "input_poly.h"
 #include <string.h>
 #include <stdbool.h>
 #include <ctype.h>
