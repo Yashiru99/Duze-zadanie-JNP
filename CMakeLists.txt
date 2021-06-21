@@ -44,9 +44,9 @@ set(SOURCE_FILES_TEST
 
 # Wskazujemy plik wykonywalny.
 add_executable(poly ${SOURCE_FILES})
-add_executable(test ${SOURCE_FILES_TEST})
+add_executable(test EXCLUDE_FROM_ALL ${TEST_SOURCE_FILES} src/poly_example.c)
 
-add_test(poly_test poly_test)
+set_target_properties(test PROPERTIES OUTPUT_NAME poly_test)
 
 # Dodajemy obsługę Doxygena: sprawdzamy, czy jest zainstalowany i jeśli tak to:
 find_package(Doxygen)

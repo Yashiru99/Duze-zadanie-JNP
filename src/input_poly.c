@@ -162,6 +162,7 @@ static void PolyIsWrong(size_t w){
 static line ReadLine(char **buffor, size_t *len){
     int nRead = 0;
     nRead = getline(buffor, len, stdin);
+    if(errno == -1)exit(1);
     *len = nRead + 1;
     CHECK_PTR(*buffor);
     return nRead == -1 ? (line) {.length = 0, .letters = NULL} : (line) {.length = nRead, .letters = *buffor};

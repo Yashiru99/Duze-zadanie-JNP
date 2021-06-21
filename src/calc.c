@@ -5,7 +5,7 @@
   @copyright Uniwersytet Warszawski
   @date 2021
 */
-#include "inputPoly.h"
+#include "input_poly.h"
 int main() {
     ReadFile();
 }
