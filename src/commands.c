@@ -221,7 +221,7 @@ void ReadAndDoCommand(line l, size_t w, heap *h){
         size_t k = strtoll(l.letters + 7, NULL, 10);
         Poly p = PopHeap(h);
         Poly q[k]; // nasza tablica wielomianów
-        for(size_t i = 0; i < k; i++)q[i] = PopHeap(h);
+        for(size_t i = 0; i < k; i++)q[k - i - 1] = PopHeap(h);
         AddHeap(h, PolyCompose(&p, k, q));
     }
     else{

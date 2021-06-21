@@ -222,6 +222,7 @@ Poly PolyCloneMonos(size_t count, const Mono monos[]){
 
     return (Poly) {.size = realCount, .arr = copied};
 }
+
 Poly PolyClone(const Poly *p) {
     if (PolyIsCoeff(p)) {
         return PolyFromCoeff(p -> coeff);
@@ -460,43 +461,74 @@ Poly PolyAt(const Poly *p, poly_coeff_t x) {
     return result;
 }
 
-Poly ExponentiatePoly(Poly p, size_t exp){
-    Poly result = p;
-    for(size_t i = 0; i < exp - 1; i++){
-        // TODO: tutaj gubię pamięc
-        result = PolyMul(&p, &result);
+/**
+ * Szybkie potęgowanie na wielomianach
+ * @param[in] p : wielomian
+ * @param[in] exp : wykladnik
+ * return wielomian
+ */
+static Poly ExponentiatePoly(const Poly *p, size_t exp){
+    if(exp == 0) {
+        return PolyFromCoeff(1);
     }
-    return result;
+
+    Poly polyToHelp = ExponentiatePoly(p, exp / 2);
+
+    if(exp % 2 == 0){
+        Poly res = PolyMul(&polyToHelp, &polyToHelp);
+        PolyDestroy(&polyToHelp);
+        return res;
+    }
+    else{
+        Poly additional = PolyMul(&polyToHelp, &polyToHelp);
+        PolyDestroy(&polyToHelp);
+        Poly res = PolyMul(&additional, p);
+        PolyDestroy(&additional);
+
+        return res;
+    }
 }
 
-static size_t Minimum(size_t k, size_t l){
-    return k < l ? k : l;
-}
+/**
+ * Funkcja składająca wielomian z wielomianem zerowym
+ * @param[in] p : wielomian
+ * return wielomian
+ */
+static Poly PolyComposeZero(const Poly *p){
+    if (PolyIsCoeff(p)){
+        return PolyClone(p);
+    }
 
-static Poly ComposeMonoAndPoly(Poly p, Mono m){
-    if(PolyIsZero(&p))return PolyZero();
-    Poly exp = ExponentiatePoly(p, m.exp);
-    return PolyMul(&exp, &m.p);
+    for(size_t i = 0; i < p->size; i++){
+        if(p->arr[i].exp == 0){
+            return PolyComposeZero(&p->arr[i].p);
+        }
+    }
+
+    return PolyZero();
 }
 
 Poly PolyCompose(const Poly *p, size_t k, const Poly q[]){
-    if(PolyIsCoeff(p)) return *p;
-    size_t l = p -> size;
-    Poly result = PolyZero();
-    // musimy jeszcze zrobic kopię wielomianu
-    size_t boundary = Minimum(k,l) - 1;
-    Poly temp;
-    size_t index = 0;
-    if(p -> arr[0].exp == 0){
-        result = PolyAdd(&p -> arr[0].p, &result);
-    }// to nam numeruje kolejne wielomiany w q[]
-    for(size_t i = p -> arr[0].exp == 0 ? 1 : 0; i < l; i++){
-        // jeżeli pierwszy jest wielomianem o wykładniku 0 to go omijamy, i nam numeruje wielomiany
-        if(index <= boundary){
-             temp = ComposeMonoAndPoly(q[index], p -> arr[i]);
-             result = PolyAdd(&result, &temp);
-        }
-        index++;
+    if(k == 0){
+        return PolyComposeZero(p);
     }
-    return result;
+
+    if(PolyIsCoeff(p)){
+        return PolyClone(p);
+    }
+
+    Poly res = PolyZero();
+
+    for(size_t i = 0; i < p->size; i++){
+        Poly coeff = PolyCompose(&p->arr[i].p, k-1, q+1);
+        Poly exp = ExponentiatePoly(q, p->arr[i].exp);
+        Poly mul = PolyMul(&exp, &coeff);
+
+        PolyDestroy(&coeff);
+        res = PolyAdd(&res, &mul);
+        PolyDestroy(&exp);
+        PolyDestroy(&mul);
+    }
+
+    return res;
 }
