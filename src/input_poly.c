@@ -8,6 +8,7 @@
 
 /** Makro zdefiniowane w celu uzyskania dostępu do funkcji getline() */
 #define _GNU_SOURCE
+#define CORRECTING_INDEX 2
 
 #include "poly.h"
 #include "commands.h"
@@ -36,7 +37,7 @@
  * @param[in] actualLine : linia
  * @return czy linia moze być wielomianem?
  */
-static bool LineIsPoly(line actualLine){
+static bool LineIsPoly(const line actualLine){
     assert(actualLine.letters != NULL);
     return isdigit(actualLine.letters[0]) || actualLine.letters[0] == '(' || actualLine.letters[0] == '-';
 }
@@ -46,7 +47,7 @@ static bool LineIsPoly(line actualLine){
  * @param[in] actualLine : linia
  * @return czy linia moze być komendą?
  */
-static bool LineIsCommand(line actualLine){
+static bool LineIsCommand(const line actualLine){
     assert(actualLine.letters != NULL && actualLine.length != 0);
     return isalpha(actualLine.letters[0]);
 }
@@ -56,7 +57,7 @@ static bool LineIsCommand(line actualLine){
  * @param[in] actualLine : linia
  * @return czy linia jest pusta lub jest komentarzem?
  */
-static bool LineIsCommentOrEmpty(line actualLine){
+static bool LineIsCommentOrEmpty(const line actualLine){
     assert(actualLine.letters != NULL && actualLine.length != 0);
     return actualLine.letters[0] == '#' || actualLine.letters[0] == '\n' || actualLine.letters[0] == EOF;
 }
@@ -66,11 +67,11 @@ static bool LineIsCommentOrEmpty(line actualLine){
  * @param[in] a : litera do sprawdzenia
  * @return czy char moze wystąpić w komendzie lub wielomianie?
  */
-static bool IsAllowed(char a){
+static bool IsAllowed(const char a){
     return isdigit(a) || a == ',' || a == '(' || a == ')' || a == '+' || a == '\n' || a == '-' || a == EOF;
 }
 
-static bool CheckMono(line actualLine, size_t start, size_t end);
+static bool CheckMono(const line actualLine, size_t start, size_t end);
 
 /**
  * Sprawdza czy wykladnik jest w poprawnym zakresie.
@@ -102,8 +103,10 @@ static bool CheckPoly(line actualLine, size_t start, size_t end){
         return start >= end;
     }
     size_t heap = 0;
-    if(actualLine.letters[start] == '(' && !(actualLine.letters[start + 1] == '(' || actualLine.letters[start + 1] == '-' || isdigit(actualLine.letters[start + 1])))return false;
-    if(actualLine.letters[start] == '(' && (actualLine.letters[start + 1] == '(' || actualLine.letters[start + 1] == '-' || isdigit(actualLine.letters[start + 1]))){
+    if(actualLine.letters[start] == '(' && !(actualLine.letters[start + 1] == '(' 
+        || actualLine.letters[start + 1] == '-' || isdigit(actualLine.letters[start + 1])))return false;
+    if(actualLine.letters[start] == '(' && (actualLine.letters[start + 1] == '(' 
+        || actualLine.letters[start + 1] == '-' || isdigit(actualLine.letters[start + 1]))){
         heap++;
         for(size_t i = start + 1; i <= end; ++i){
             result &= IsAllowed(actualLine.letters[i]);
@@ -132,7 +135,7 @@ static bool CheckPoly(line actualLine, size_t start, size_t end){
  * @param[in] end : koniec
  * @return czy monomian w linii zaczynający się od start i kończącej na end jest poprawny?
  */
-static bool CheckMono(line actualLine, size_t start, size_t end){
+static bool CheckMono(const line actualLine, size_t start, size_t end){
     bool result = true;
     result &= isdigit(actualLine.letters[end]) != 0 ? 1 : 0;
     while(start < end && isdigit(actualLine.letters[end])){
@@ -162,10 +165,13 @@ static void PolyIsWrong(size_t w){
 static line ReadLine(char **buffor, size_t *len){
     int nRead = 0;
     nRead = getline(buffor, len, stdin);
-    if(errno == -1)exit(1);
+    if(errno == -1 || nRead == -1){
+        free(*buffor);
+        exit(1);
+    }
     *len = nRead + 1;
     CHECK_PTR(*buffor);
-    return nRead == -1 ? (line) {.length = 0, .letters = NULL} : (line) {.length = nRead, .letters = *buffor};
+    return (line) {.length = nRead, .letters = *buffor};
 }
 
 /**
@@ -271,6 +277,7 @@ static Poly ReadMonos(line polyToRead, bool *isValid, size_t start, size_t end){
     free(monosToAdd);
     return result;
 }
+
 /**
   Funkcja wczytująca wszystkie polecenia oraz wielomiany oraz wykonująca owe polecenia.
 */
@@ -284,9 +291,9 @@ void ReadFile(){
     bool isValid;
     IniHeap(&h);
     while(l.letters != NULL){
-        if(LineIsPoly(l) && CheckPoly(l, 0, l.length - 2)){
+        if(LineIsPoly(l) && CheckPoly(l, 0, l.length - CORRECTING_INDEX)){
             isValid = true;
-            p = ReadMonos(l, &isValid, 0, l.length - 2);
+            p = ReadMonos(l, &isValid, 0, l.length - CORRECTING_INDEX);
             if(!isValid){
                 PolyDestroy(&p);
                 PolyIsWrong(numberOfLine);

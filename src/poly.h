@@ -55,6 +55,18 @@ typedef struct Mono {
 } Mono;
 
 /**
+ * Struktura przetrymujaca tablicowo zbudowany stos.
+ */
+typedef struct{
+    /** Tablica wielomianow */
+    Poly *heap;
+    /** maksymalna wielkosc stosu */
+    size_t size;
+    /** indeks na pierwsze wolne miejsce w tablicy */
+    size_t headIndex;
+}heap;
+
+/**
  * Daje wartość wykładnika jendomianu.
  * @param[in] m : jednomian
  * @return wartość wykładnika jednomianu
@@ -246,9 +258,9 @@ Poly PolyAt(const Poly *p, poly_coeff_t x);
 
 /**
  * Funkcja składająca ze sobą wielomian i kolejne wielomiany z tablicy wielomianów
- * @param p : wielomian
- * @param k : liczebność tablicy q
- * @param q : tablica wielomianów
+ * @param[in] p : wielomian
+ * @param[in] k : liczebność tablicy q
+ * @param[in] q : tablica wielomianów
  * @return : wielomian
  */
 Poly PolyCompose(const Poly *p, size_t k, const Poly q[]);

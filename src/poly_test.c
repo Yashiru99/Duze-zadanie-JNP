@@ -10,6 +10,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
+/** Makro do sprawdzenia czy alokacja się powiodła*/
 #define CHECK_PTR(p)  \
   do {                \
     if (p == NULL) {  \

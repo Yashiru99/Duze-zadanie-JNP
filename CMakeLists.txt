@@ -23,18 +23,6 @@ set(CMAKE_C_FLAGS "-std=c11 -O2 -Wextra -Wall")
 set(SOURCE_FILES
     src/poly.c
     src/poly.h
-    src/calc.c
-    src/input_poly.c
-    src/input_poly.h
-    src/commands.c
-    src/commands.h
-    src/heap.c
-    src/heap.h)
-
-set(SOURCE_FILES_TEST
-    src/poly.c
-    src/poly.h
-    src/poly_test.c
     src/input_poly.c
     src/input_poly.h
     src/commands.c
@@ -44,7 +32,7 @@ set(SOURCE_FILES_TEST
 
 # Wskazujemy plik wykonywalny.
 add_executable(poly ${SOURCE_FILES} src/calc.c)
-add_executable(test ${TEST_SOURCE_FILES} src/poly_test.c)
+add_executable(test ${SOURCE_FILES} src/poly_test.c)
 
 set_target_properties(test PROPERTIES OUTPUT_NAME poly_test)
 

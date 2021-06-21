@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include "heap.h"
 
+/** Makro do sprawdzenia czy alokacja się powiodła*/
 #define CHECK_PTR(p)  \
   do {                \
     if (p == NULL) {  \
@@ -29,15 +30,6 @@ static void ResizePlus(heap **head){
     CHECK_PTR((*head) -> heap);
 }
 
-/**
- * Realokowanie stosu w celu zmniejszenia pamięci.
- * @param[in] head : wskaźnik na wskaźnik na stos
- */
-static void ResizeMinus(heap **head){
-    (*head) -> size /= 2;
-    (*head) = realloc(*head, sizeof(Poly) * (*head) -> size);
-    CHECK_PTR(*head);
-}
 
 void IniHeap(heap **head){
     if((*head) == NULL){
@@ -58,9 +50,6 @@ void AddHeap(heap *head, Poly p){
 }
 
 Poly PopHeap(heap *head){
-    if(head -> headIndex < (1/4 * head -> size)){
-        ResizeMinus(&head);
-    }
     Poly result = head -> heap[head -> headIndex - 1];
     head -> headIndex -= 1;
     return result;
